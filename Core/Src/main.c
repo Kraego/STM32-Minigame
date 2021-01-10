@@ -122,7 +122,7 @@ int main(void)
 
   // Compass Demo - TODO: remove
   compass_init();
-  DEBUG_PRINTF(&huart2, "Compass tryout");
+  DEBUG_PRINTF(&huart2, "Compass tryout!");
   int16_t magn_vals[3];
   compass_getRawValues(magn_vals);
   DEBUG_PRINTF(&huart2, "x: %i, y: %i, z: %i", magn_vals[0], magn_vals[1], magn_vals[2]);
