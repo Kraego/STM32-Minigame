@@ -10,12 +10,6 @@
 *.la
 *.lo
 
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
 # Executables
 *.exe
 *.out
@@ -26,8 +20,6 @@
 
 # Misc
 *.map
-*.m
-*.png
 
 # Eclipse CDT project files
 .cproject
