@@ -10,7 +10,9 @@
 
 #include <stdint.h>
 
-void compass_init(void);
-void compass_getRawValues(int16_t *pDataXYZ);
+void compass_Init(void);
+void compass_Calibrate(void);
+int compass_GetValues(double *pDataXYZ);
+void compass_GetRawValues(int16_t *pDataXYZ);
 
 #endif /* COMPASS_H_ */

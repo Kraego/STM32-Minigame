@@ -16,10 +16,13 @@
 #define DEBUG_PRINT
 
 #ifdef DEBUG_PRINT
-	void debugPrintln(UART_HandleTypeDef *huart, const char *fmt, ...);
-	#define DEBUG_PRINTF(huart, fmt, args...) debugPrintln(huart, fmt, ## args)
+	void debug_Init(UART_HandleTypeDef *_huart);
+	void debug_Println(const char *fmt, ...);
+	#define DEBUG_INIT(huart) 			debug_Init(huart)
+	#define DEBUG_PRINTF(fmt, args...) 	debug_Println(fmt, ## args)
 #else
-#define DEBUG_PRINTF(huart, fmt, args...)
+	#define DEBUG_PRINTF(fmt, args...)
+	#define DEBUG_INIT(huart)
 #endif
 
 #endif /* UTILS_DEBUG_H_ */
