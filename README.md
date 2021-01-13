@@ -17,7 +17,7 @@ The following hardware of the STM32L476G-DISCO Board board is used:
   * Joystick-Center - Enter
 * LED (green and red) for flash sequence
 * LCD Display: Arrow + State messages
-![The Arrow](.images/Arrow.png)
+![The Arrow](images/Arrow.png)
 * Accelerometer and magnetometer (lsm303c)
 * (for mobility: battery or Powerbank over USB)
 
