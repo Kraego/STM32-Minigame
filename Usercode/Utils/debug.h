@@ -16,8 +16,8 @@
 #define DEBUG_PRINT
 
 #ifdef DEBUG_PRINT
-	void debug_Init(UART_HandleTypeDef *_huart);
-	void debug_Println(const char *fmt, ...);
+void debug_Init(UART_HandleTypeDef *_huart);
+void debug_Println(const char *fmt, ...);
 	#define DEBUG_INIT(huart) 			debug_Init(huart)
 	#define DEBUG_PRINTF(fmt, args...) 	debug_Println(fmt, ## args)
 #else

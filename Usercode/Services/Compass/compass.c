@@ -30,46 +30,45 @@ typedef struct {
 	double rangeY;
 	double biasZ;
 	double rangeZ;
-}compass_calibration_t;
+} compass_calibration_t;
 
-static compass_calibration_t calibration = {};
+static compass_calibration_t calibration = { };
 
-static bool isCalibrated(){
-	return calibration.biasX != 0 && calibration.rangeX &&
-			calibration.biasY != 0 && calibration.rangeY &&
-			calibration.biasZ != 0 && calibration.rangeZ;
+static bool isCalibrated() {
+	return calibration.biasX != 0 && calibration.rangeX && calibration.biasY != 0 && calibration.rangeY
+			&& calibration.biasZ != 0 && calibration.rangeZ;
 }
 
 /**
  * Initialize compass
  */
-void compass_Init(){
+void compass_Init() {
 	DEBUG_PRINTF("Initializing Compass");
 	BSP_COMPASS_Init();
 }
 
 /**
-  * Get raw values from compass
-  *
-  * @param  pDataXYZ Pointer on 3 magnetometer values table with
-  *                  pDataXYZ[0] = X axis, pDataXYZ[1] = Y axis, pDataXYZ[2] = Z axis
-  * @retval None
-  */
-void compass_GetRawValues(int16_t *pDataXYZ){
+ * Get raw values from compass
+ *
+ * @param  pDataXYZ Pointer on 3 magnetometer values table with
+ *                  pDataXYZ[0] = X axis, pDataXYZ[1] = Y axis, pDataXYZ[2] = Z axis
+ * @retval None
+ */
+void compass_GetRawValues(int16_t *pDataXYZ) {
 	BSP_COMPASS_MagGetXYZ(pDataXYZ);
 }
 
 /**
-  * Get calibrated values from compass
-  *
-  * @param  pDataXYZ Pointer on 3 magnetometer values table with
-  *                  pDataXYZ[0] = X axis, pDataXYZ[1] = Y axis, pDataXYZ[2] = Z axis
-  * @retval 0 if success, -1 if not calibrated
-  */
-int compass_GetValues(double *pDataXYZ){
+ * Get calibrated values from compass
+ *
+ * @param  pDataXYZ Pointer on 3 magnetometer values table with
+ *                  pDataXYZ[0] = X axis, pDataXYZ[1] = Y axis, pDataXYZ[2] = Z axis
+ * @retval 0 if success, -1 if not calibrated
+ */
+int compass_GetValues(double *pDataXYZ) {
 	int16_t rawValues[3];
 
-	if (!isCalibrated()){
+	if (!isCalibrated()) {
 		return -1;
 	}
 	BSP_COMPASS_MagGetXYZ(rawValues);
@@ -80,7 +79,7 @@ int compass_GetValues(double *pDataXYZ){
 	return 0;
 }
 
-void compass_Calibrate(){
+void compass_Calibrate() {
 	int16_t magBuffer[3];
 	int16_t toDo = CALIBRATION_SAMPLES;
 	int16_t xMax = 0;
@@ -92,7 +91,7 @@ void compass_Calibrate(){
 
 	DEBUG_PRINTF("Calibrating compass ...");
 
-	while(toDo){
+	while (toDo) {
 		compass_GetRawValues(magBuffer);
 		xMax = max(xMax, magBuffer[0]);
 		yMax = max(yMax, magBuffer[1]);

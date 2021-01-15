@@ -15,7 +15,7 @@ static UART_HandleTypeDef *_huart = NULL;
  *
  * @param huart handle to uart using as output
  */
-void debug_Init(UART_HandleTypeDef *huart){
+void debug_Init(UART_HandleTypeDef *huart) {
 	_huart = huart;
 }
 
