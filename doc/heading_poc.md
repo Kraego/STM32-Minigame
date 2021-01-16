@@ -3,7 +3,7 @@
 To check Heading, I sloppy added this code in the main.
 
 ``` C
-  // Compass Demo - TODO: remove
+  // Compass Demo
 #include "compass.h"
 #include "debug.h"
 #include "heading_calc.h"
