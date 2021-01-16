@@ -1,8 +1,6 @@
 # Heading POC
 
-To check Heading:
-
-in Main of Project:
+To check Heading, I sloppy added this code in the main.
 
 ``` C
   // Compass Demo - TODO: remove

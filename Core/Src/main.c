@@ -120,12 +120,11 @@ int main(void)
 
   // Arrow Display Demo - TODO: remove
 #include "debug.h"
-#include "heading_calc.h"
+#include "display.h"
 
   DEBUG_INIT(&huart2);
-
-
-
+  DEBUG_PRINTF("starting demo!");
+  display_Init();
 
   /* USER CODE END 2 */
 
@@ -136,6 +135,14 @@ int main(void)
     /* USER CODE END WHILE */
     MX_USB_HOST_Process();
     /* USER CODE BEGIN 3 */
+    display_arrayWest();
+    HAL_Delay(1000);
+    display_arrayNorth();
+    HAL_Delay(1000);
+    display_arrayEast();
+    HAL_Delay(1000);
+    display_arraySouth();
+    HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 }

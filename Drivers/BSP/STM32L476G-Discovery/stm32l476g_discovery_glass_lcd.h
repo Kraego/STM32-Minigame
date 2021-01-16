@@ -460,9 +460,6 @@ typedef enum
 /* code for 'n' character */
 #define C_NMAP                ((uint16_t) 0x2210)
 
-/* code for 'µ' character */
-#define C_UMAP                ((uint16_t) 0x6084)
-
 /* constant code for '*' character */
 #define C_STAR                ((uint16_t) 0xA0DD)
 
@@ -475,8 +472,21 @@ typedef enum
 /* constant code for '/' */
 #define C_SLATCH              ((uint16_t) 0x00c0)
 
-/* constant code for ° */
-#define C_PERCENT_1           ((uint16_t) 0xec00)
+/* constant code for array west */
+#define C_ARRAY_WEST		  ((uint16_t) 0x0041)
+
+/* constant code for array east */
+#define C_ARRAY_EAST		  ((uint16_t) 0x0088)
+
+/* constant code for array north first segment */
+#define C_ARRAY_NORTH_1		  ((uint16_t) 0x0040)
+/* constant code for array north second segment */
+#define C_ARRAY_NORTH_2		  ((uint16_t) 0x0008)
+
+/* constant code for array south first segment */
+#define C_ARRAY_SOUTH_1		  ((uint16_t) 0x0001)
+/* constant code for array south second segment */
+#define C_ARRAY_SOUTH_2		  ((uint16_t) 0x0080)
 
 /* constant code for small o */
 #define C_PERCENT_2           ((uint16_t) 0xb300)
@@ -496,6 +506,10 @@ void BSP_LCD_GLASS_Init(void);
 void BSP_LCD_GLASS_DeInit(void);
 void BSP_LCD_GLASS_BlinkConfig(uint32_t BlinkMode, uint32_t BlinkFrequency);
 void BSP_LCD_GLASS_Contrast(uint32_t Contrast);
+void BSP_LCD_GLASS_DisplayArrowWest(void);
+void BSP_LCD_GLASS_DisplayArrowEast(void);
+void BSP_LCD_GLASS_DisplayArrowNorth(void);
+void BSP_LCD_GLASS_DisplayArrowSouth(void);
 void BSP_LCD_GLASS_DisplayChar(uint8_t *ch, Point_Typedef Point, DoublePoint_Typedef Column, DigitPosition_Typedef Position);
 void BSP_LCD_GLASS_DisplayString(uint8_t *ptr);
 void BSP_LCD_GLASS_DisplayStrDeci(uint16_t *ptr);

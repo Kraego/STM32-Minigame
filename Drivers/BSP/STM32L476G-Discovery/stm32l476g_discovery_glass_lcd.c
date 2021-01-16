@@ -117,6 +117,12 @@ const uint16_t CapLetterMap[26] =
   0xAF00, 0x0414, 0x5b00, 0x18C0, 0x5A81, 0x00C9, 0x0058, 0x05C0
 };
 
+const uint16_t ArrayMap[4] =
+{
+	/*West	 */
+	0x41, 0x0, 0x0, 0x0
+};
+
 /* Constant table for number '0' --> '9' */
 const uint16_t NumberMap[10] =
 {
@@ -440,6 +446,60 @@ void BSP_LCD_GLASS_DisplayChar(uint8_t *ch, Point_Typedef Point, DoublePoint_Typ
 }
 
 /**
+ * Added by user.
+ *
+ * Print an Arrow West in the middle of LCD Glass
+ */
+void BSP_LCD_GLASS_DisplayArrowWest()
+{
+	WriteChar((uint8_t *) "<" , 0, 0, 2);
+
+	/* Update the LCD display */
+	HAL_LCD_UpdateDisplayRequest(&LCDHandle);
+}
+
+/**
+ * Added by user.
+ *
+ * Print an Arrow East in the middle of LCD Glass
+ */
+void BSP_LCD_GLASS_DisplayArrowEast()
+{
+	WriteChar((uint8_t *) ">" , 0, 0, 3);
+
+	/* Update the LCD display */
+	HAL_LCD_UpdateDisplayRequest(&LCDHandle);
+}
+
+/**
+ * Added by user.
+ *
+ * Print an Arrow North in the middle of LCD Glass
+ */
+void BSP_LCD_GLASS_DisplayArrowNorth()
+{
+	WriteChar((uint8_t *) "|" , 0, 0, 2);
+	WriteChar((uint8_t *) "!" , 0, 0, 3);
+
+	/* Update the LCD display */
+	HAL_LCD_UpdateDisplayRequest(&LCDHandle);
+}
+
+/**
+ * Added by user.
+ *
+ * Print an Arrow South in the middle of LCD Glass
+ */
+void BSP_LCD_GLASS_DisplayArrowSouth()
+{
+	WriteChar((uint8_t *) "_" , 0, 0, 2);
+	WriteChar((uint8_t *) "#" , 0, 0, 3);
+
+	/* Update the LCD display */
+	HAL_LCD_UpdateDisplayRequest(&LCDHandle);
+}
+
+/**
   * @brief  Write a character string in the LCD RAM buffer.
   * @param  ptr: Pointer to string to display on the LCD Glass.
   * @retval None
@@ -697,7 +757,31 @@ static void Convert(uint8_t *Char, Point_Typedef Point, DoublePoint_Typedef Colo
 
   switch (*Char)
   {
-    case ' ' :
+    case '<':
+      ch = C_ARRAY_WEST;
+      break;
+
+    case '>':
+      ch = C_ARRAY_EAST;
+      break;
+
+    case '|':
+      ch = C_ARRAY_NORTH_1;
+      break;
+
+    case '_':
+      ch = C_ARRAY_SOUTH_1;
+      break;
+
+    case '!':
+      ch = C_ARRAY_NORTH_2;
+      break;
+
+    case '#':
+      ch = C_ARRAY_SOUTH_2;
+      break;
+
+  	case ' ' :
       ch = 0x00;
       break;
 
@@ -725,10 +809,6 @@ static void Convert(uint8_t *Char, Point_Typedef Point, DoublePoint_Typedef Colo
       ch = C_NMAP;
       break;
 
-    case 'µ' :
-      ch = C_UMAP;
-      break;
-
     case '-' :
       ch = C_MINUS;
       break;
@@ -741,9 +821,6 @@ static void Convert(uint8_t *Char, Point_Typedef Point, DoublePoint_Typedef Colo
       ch = C_SLATCH;
       break;
 
-    case '°' :
-      ch = C_PERCENT_1;
-      break;
     case '%' :
       ch = C_PERCENT_2;
       break;
