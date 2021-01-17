@@ -32,7 +32,7 @@ void usercode_Run(void) {
 //	DEBUG_PRINTF("Raw Values x: %i, y: %i, z: %i", magn_vals[0], magn_vals[1], magn_vals[2]);
     compass_GetValues(magn);
     DEBUG_PRINTF("Magn Values x: %i, y: %i, z: %i", magn[0], magn[1], magn[2]);
-    DEBUG_PRINTF("heading is %d",(int32_t) heading_Calc_getHeading(magn[0], magn[1]));
+    DEBUG_PRINTF("heading is %d  !",(int32_t) heading_Calc_getHeading(magn[0], magn[1]));
     DEBUG_PRINTF("\033[3A");
     HAL_Delay(1000);
 }
