@@ -14,9 +14,19 @@
 
 static LCD_HandleTypeDef hlcd;
 
+/**
+ * Init the lcd display
+ */
 void display_Init() {
 	BSP_LCD_GLASS_Init();
 	HAL_LCD_Init(&hlcd);
+}
+
+/**
+ * Clear the lcd display
+ */
+void display_Clear() {
+	BSP_LCD_GLASS_Clear();
 }
 
 /**

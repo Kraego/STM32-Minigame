@@ -11,6 +11,7 @@
 #include <stdint.h>
 
 void display_Init(void);
+void display_Clear(void);
 void display_arrayWest(void);
 void display_arrayEast(void);
 void display_arrayNorth(void);
