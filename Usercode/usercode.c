@@ -4,10 +4,10 @@
  *  Created on: 17 Jan 2021
  *      Author: tkrax
  */
-#include "usercode.h"
-#include "debug.h"
 #include "compass.h"
 #include "display.h"
+#include "usercode.h"
+#include "debug.h"
 #include "heading_calc.h"
 
 void usercode_Init(void) {

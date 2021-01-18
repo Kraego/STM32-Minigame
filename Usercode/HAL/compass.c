@@ -6,8 +6,8 @@
  */
 #include <limits.h>
 #include <stdbool.h>
-#include "debug.h"
 #include "compass.h"
+#include "debug.h"
 #include "stm32l476g_discovery_qspi.h"
 #include "stm32l476g_discovery_compass.h"
 
