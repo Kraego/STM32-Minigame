@@ -30,6 +30,7 @@
 #define DIFF_EASY_FLASH_CNT		(3)
 #define DIFF_MEDIUM_FLASH_CNT	(5)
 #define DIFF_ADVANCED_FLASH_CNT	(7)
+#define ROTATION_TOLERANCE_DEG	(15)
 #define DIFF_HARDCORE_FLASH_CNT	(15)
 #define FLASH_TIME_MS			(500)
 #define WAIT_DELAY_MS			(250)
@@ -305,13 +306,28 @@ bool _minigame_RunCheckRotationTo(uint32_t toPlayer, uint32_t players){
 	uint32_t startHeading = heading_GetHeading();
 	uint32_t degreesBetweenPlayers = players == 4 ? 90 : 180;
 	uint32_t destinationHeading = (startHeading + toPlayer * degreesBetweenPlayers - 180) % 360;
+	uint32_t startTime_ms = HAL_GetTick();
 
-	DEBUG_PRINTF("Start heading is %i target is %i!", startHeading, destinationHeading);
+	DEBUG_PRINTF("Start heading is %d target is %d!", startHeading, destinationHeading);
 	display_Write("ROTATE");
-	display_ShowBars(4);
+	display_ShowBars(5);
 
-	HAL_Delay(1000);
-	return false;
+	while ((abs(destinationHeading - heading_GetHeading()) > ROTATION_TOLERANCE_DEG)){
+		uint32_t diff = startTime_ms - HAL_GetTick();
+
+		if (diff > 250) {
+			display_ShowBars(4);
+		} else if (diff > 500) {
+			display_ShowBars(3);
+		} else if (diff > 750) {
+			display_ShowBars(1);
+		} else if (diff > 1000) {
+			return false;
+		}
+		HAL_Delay(50);
+	}
+
+	return true;
 }
 
 bool _minigame_CheckSequence(){
@@ -328,7 +344,6 @@ void minigame_Run(void) {
 	bool success;
 
 	DEBUG_PRINTF("Starting game ... ");
-	_gameState = STATE_CALCULATE_FLASHES; // TODO: remove
 
 	while (true) {
 		switch (_gameState) {
