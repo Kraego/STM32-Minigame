@@ -8,6 +8,15 @@
 #ifndef HAL_JOYSTICK_H_
 #define HAL_JOYSTICK_H_
 
+typedef enum {
+	NOTHING,
+	UP,
+	DOWN,
+	LEFT,
+	RIGHT,
+	CENTER
+} joystick_press_t;
+
 typedef struct {
 	void (*callbackUp)();
 	void (*callbackDown)();
@@ -17,5 +26,6 @@ typedef struct {
 }joystick_callbacks_t;
 
 void joystick_init();
+joystick_press_t joystick_waitForPress();
 
 #endif /* HAL_JOYSTICK_H_ */
