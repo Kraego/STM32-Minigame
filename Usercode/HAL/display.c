@@ -12,14 +12,11 @@
 #define SCROLL_REPEATS	(1)
 #define DISPLAY_SIZE	(6)
 
-static LCD_HandleTypeDef hlcd;
-
 /**
  * Init the lcd display
  */
 void display_Init() {
 	BSP_LCD_GLASS_Init();
-	HAL_LCD_Init(&hlcd);
 }
 
 /**
@@ -54,23 +51,19 @@ void display_ScrollText(char *text) {
 void display_arrayWest() {
 	BSP_LCD_GLASS_Clear();
 	BSP_LCD_GLASS_DisplayArrowWest();
-	HAL_LCD_UpdateDisplayRequest(&hlcd);
 }
 
 void display_arrayEast() {
 	BSP_LCD_GLASS_Clear();
 	BSP_LCD_GLASS_DisplayArrowEast();
-	HAL_LCD_UpdateDisplayRequest(&hlcd);
 }
 
 void display_arrayNorth() {
 	BSP_LCD_GLASS_Clear();
 	BSP_LCD_GLASS_DisplayArrowNorth();
-	HAL_LCD_UpdateDisplayRequest(&hlcd);
 }
 
 void display_arraySouth() {
 	BSP_LCD_GLASS_Clear();
 	BSP_LCD_GLASS_DisplayArrowSouth();
-	HAL_LCD_UpdateDisplayRequest(&hlcd);
 }

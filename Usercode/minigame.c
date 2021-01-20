@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <time.h>
 #include "minigame.h"
+#include "arrowRotator.h"
 #include "led.h"
 #include "joystick.h"
 #include "compass.h"
@@ -31,6 +32,7 @@
 #define DIFF_ADVANCED_FLASH_CNT	(7)
 #define DIFF_HARDCORE_FLASH_CNT	(15)
 #define FLASH_TIME_MS			(500)
+#define WAIT_DELAY_MS			(250)
 
 #define DIFF_DECR_CURRENT	(_gameConfig.difficulty == DIFF_EASY ? DIFF_HARDCORE : (_gameConfig.difficulty - 1) % DIFF_LEVEL_CNT)
 
@@ -39,7 +41,16 @@ typedef enum {
 } menuSelection_t;
 
 typedef enum {
-	STATE_INITIAL_SELECTION, STATE_CONFIGURE, STATE_CALCULATE_FLASHES, STATE_PLAY
+	STATE_INITIAL_SELECTION,
+	STATE_CONFIGURE,
+	STATE_CALCULATE_FLASHES,
+	STATE_WAIT_FOR_CENTER,
+	STATE_RUN_FLASHES,
+	STATE_ROTATE_ARROW,
+	STATE_ROTATE_BOARD,
+	STATE_ENTER_FLASH_SEQUENCE,
+	STATE_VICTORY,
+	STATE_FAILED,
 } gameState_t;
 
 typedef enum {
@@ -49,7 +60,8 @@ typedef enum {
 typedef struct {
 	uint32_t players;
 	difficulty_t difficulty;
-} gameConfig_t;
+	uint32_t current_Player;
+} gameData_t;
 
 typedef enum {
 	GREEN = 0, RED = 1
@@ -66,12 +78,12 @@ DIFF_HARDCORE_TXT };
 
 static gameState_t _gameState = STATE_INITIAL_SELECTION;
 
-static void _minigame_mainMenu() {
+static void _minigame_MainMenu() {
 	joystick_press_t input = NOTHING;
 	menuSelection_t _menuSelection = MENU_PLAY;
 
 	display_ScrollText("         MINIGAME");
-	HAL_Delay(1500);
+	HAL_Delay(WAIT_DELAY_MS);
 
 	display_Write(PLAY_TXT);
 
@@ -96,7 +108,7 @@ static void _minigame_mainMenu() {
 	}
 }
 
-static void _minigame_configPlayers(gameConfig_t *gameConfig) {
+static void _minigame_ConfigPlayers(gameData_t *gameConfig) {
 	joystick_press_t input = NOTHING;
 	uint32_t playerCount = 2;
 
@@ -118,16 +130,16 @@ static void _minigame_configPlayers(gameConfig_t *gameConfig) {
 	}
 }
 
-static void _minigame_incrDifficulty(gameConfig_t *gameConfig) {
+static void _minigame_IncrDifficulty(gameData_t *gameConfig) {
 	gameConfig->difficulty = (gameConfig->difficulty + 1) % DIFF_LEVEL_CNT;
 }
 
-static void _minigame_decrDifficulty(gameConfig_t *gameConfig) {
+static void _minigame_DecrDifficulty(gameData_t *gameConfig) {
 	gameConfig->difficulty =
 			gameConfig->difficulty == DIFF_EASY ? DIFF_HARDCORE : (gameConfig->difficulty - 1) % DIFF_LEVEL_CNT;
 }
 
-static void _minigame_configDifficulty(gameConfig_t *gameConfig) {
+static void _minigame_ConfigDifficulty(gameData_t *gameConfig) {
 	joystick_press_t input = NOTHING;
 
 	display_Write(DIFF_MEDIUM_TXT);
@@ -137,23 +149,23 @@ static void _minigame_configDifficulty(gameConfig_t *gameConfig) {
 		input = joystick_WaitForPress();
 
 		if (input == UP) {
-			_minigame_incrDifficulty(gameConfig);
+			_minigame_IncrDifficulty(gameConfig);
 		} else if (input == DOWN) {
-			_minigame_decrDifficulty(gameConfig);
+			_minigame_DecrDifficulty(gameConfig);
 		}
 		display_Write(difficulty_map[gameConfig->difficulty]);
 	}
 }
 
-static void _minigame_config(gameConfig_t *gameConfig) {
-	_minigame_configPlayers(gameConfig);
-	_minigame_configDifficulty(gameConfig);
+static void _minigame_Config(gameData_t *gameConfig) {
+	gameConfig->current_Player = 0;
+	_minigame_ConfigPlayers(gameConfig);
+	_minigame_ConfigDifficulty(gameConfig);
 	DEBUG_PRINTF("Start game for %d player: difficulty is '%s'", gameConfig->players,
 			difficulty_map[gameConfig->difficulty]);
-	_gameState = STATE_CALCULATE_FLASHES;
 }
 
-static void _minigame_generateRandomFlash(gameFlash_t *flashSequence, uint32_t flashCount) {
+static void _minigame_GenerateRandomFlash(gameFlash_t *flashSequence, uint32_t flashCount) {
 	uint32_t flashsTodo = flashCount;
 	uint32_t idx = 0;
 	srand(HAL_GetTick());
@@ -173,48 +185,47 @@ static void _minigame_generateRandomFlash(gameFlash_t *flashSequence, uint32_t f
  *
  * @return the flash count of the sequence
  */
-static uint32_t _minigame_calculateFlashSequence(gameFlash_t **flashSequence, difficulty_t difficulty) {
+static uint32_t _minigame_CalculateFlashSequence(gameFlash_t **flashSequence, difficulty_t difficulty) {
 	uint32_t flashCount;
 
 	switch (difficulty) {
 	case DIFF_EASY:
 		*flashSequence = (gameFlash_t*) calloc(DIFF_EASY_FLASH_CNT, sizeof(gameFlash_t));
-		_minigame_generateRandomFlash(*flashSequence, DIFF_EASY_FLASH_CNT);
+		_minigame_GenerateRandomFlash(*flashSequence, DIFF_EASY_FLASH_CNT);
 		flashCount = DIFF_EASY_FLASH_CNT;
 		break;
 	case DIFF_MEDIUM:
 		*flashSequence = (gameFlash_t*) calloc(DIFF_MEDIUM_FLASH_CNT, sizeof(gameFlash_t));
 		assert(*flashSequence != NULL);
-		_minigame_generateRandomFlash(*flashSequence, DIFF_MEDIUM_FLASH_CNT);
+		_minigame_GenerateRandomFlash(*flashSequence, DIFF_MEDIUM_FLASH_CNT);
 		flashCount = DIFF_MEDIUM_FLASH_CNT;
 		break;
 	case DIFF_ADVANCED:
 		*flashSequence = (gameFlash_t*) calloc(DIFF_ADVANCED_FLASH_CNT, sizeof(gameFlash_t));
 		assert(*flashSequence != NULL);
-		_minigame_generateRandomFlash(*flashSequence, DIFF_ADVANCED_FLASH_CNT);
+		_minigame_GenerateRandomFlash(*flashSequence, DIFF_ADVANCED_FLASH_CNT);
 		flashCount = DIFF_ADVANCED_FLASH_CNT;
 		break;
 	case DIFF_HARDCORE:
 		*flashSequence = (gameFlash_t*) calloc(DIFF_HARDCORE_FLASH_CNT, sizeof(gameFlash_t));
 		assert(*flashSequence != NULL);
-		_minigame_generateRandomFlash(*flashSequence, DIFF_HARDCORE_FLASH_CNT);
+		_minigame_GenerateRandomFlash(*flashSequence, DIFF_HARDCORE_FLASH_CNT);
 		flashCount = DIFF_HARDCORE_FLASH_CNT;
 		break;
 	default:
 		DEBUG_PRINTF("Invalid difficulty level for calculate flash!!!");
 		break;
 	}
-	_gameState = STATE_PLAY;
 	return flashCount;
 }
 
-static void _minigame_FlashGreen(){
+static void _minigame_FlashGreen() {
 	led_SwitchGreen(true);
 	HAL_Delay(FLASH_TIME_MS);
 	led_SwitchGreen(false);
 }
 
-static void _minigame_FlashRed(){
+static void _minigame_FlashRed() {
 	led_SwitchRed(true);
 	HAL_Delay(FLASH_TIME_MS);
 	led_SwitchRed(false);
@@ -224,9 +235,8 @@ static void _minigame_RunFlashSequence(gameFlashSequence_t *flashSequence) {
 	uint32_t flashsTodo = flashSequence->flashCount;
 	uint32_t idx = 0;
 
-	DEBUG_PRINTF("Running flashes ...");
-	while(flashsTodo){
-		if(flashSequence->sequence[idx++] == GREEN){
+	while (flashsTodo) {
+		if (flashSequence->sequence[idx++] == GREEN) {
 			_minigame_FlashGreen();
 		} else {
 			_minigame_FlashRed();
@@ -236,7 +246,32 @@ static void _minigame_RunFlashSequence(gameFlashSequence_t *flashSequence) {
 	}
 }
 
-static void _minigame_play(gameFlashSequence_t *flashSequence) {
+/**
+ * Rotate arrow random
+ *
+ * @param players players of the game
+ *
+ * @return the offset to the next player
+ */
+static uint32_t _minigame_RotateArrow(uint32_t players) {
+	uint32_t delay_ms = 0;
+	uint32_t randomness;
+	players = 4;
+	srand(HAL_GetTick());
+	randomness = rand() % players;
+	DEBUG_PRINTF("Add Randomness %d", randomness);
+
+	while (delay_ms <= 250) {
+		arrowRotator_FullRoation(delay_ms);
+		delay_ms += 25;
+	}
+
+	arrowRotator_Rotate(delay_ms + 50, randomness);
+	HAL_Delay(500);
+	return randomness;
+}
+
+static void _minigame_WaitForCenter() {
 	joystick_press_t input = NOTHING;
 
 	display_Write("GO");
@@ -244,12 +279,7 @@ static void _minigame_play(gameFlashSequence_t *flashSequence) {
 
 	while (input != CENTER) {
 	};
-	HAL_Delay(250);
-
-	_minigame_RunFlashSequence(flashSequence);
-	HAL_Delay(250);
-
-
+	HAL_Delay(WAIT_DELAY_MS);
 }
 
 /**
@@ -271,49 +301,82 @@ void minigame_Init(void) {
 	display_Clear();
 }
 
+bool _minigame_RunCheckRotationTo(uint32_t toPlayer){
+	return false;
+}
+
+bool _minigame_CheckSequence(){
+	return false;
+}
+
 /**
  * Run the minigame. Function never returns.
  */
 void minigame_Run(void) {
 	gameFlash_t *flashes = NULL;
 	gameFlashSequence_t flashSequence = { };
-	gameConfig_t gameConfig = { };
+	gameData_t gameData = { };
+	bool success;
 
 	DEBUG_PRINTF("Starting game ... ");
+	_gameState = STATE_CALCULATE_FLASHES; // TODO: remove
 
 	while (true) {
 		switch (_gameState) {
 		case STATE_INITIAL_SELECTION:
 			DEBUG_PRINTF("In Initial Selection State");
-			_minigame_mainMenu();
+			_minigame_MainMenu();
 			break;
 		case STATE_CONFIGURE:
 			DEBUG_PRINTF("In Configure State");
-			_minigame_config(&gameConfig);
+			_minigame_Config(&gameData);
+			_gameState = STATE_CALCULATE_FLASHES;
 			break;
 		case STATE_CALCULATE_FLASHES:
 			DEBUG_PRINTF("In Calculate Flashes State");
-			uint32_t flashCount = _minigame_calculateFlashSequence(&flashes, gameConfig.difficulty);
+			uint32_t flashCount = _minigame_CalculateFlashSequence(&flashes, gameData.difficulty);
 			flashSequence.sequence = flashes;
 			flashSequence.flashCount = flashCount;
+			_gameState = STATE_WAIT_FOR_CENTER;
 			break;
-		case STATE_PLAY:
-			DEBUG_PRINTF("In Play State");
-			_minigame_play(&flashSequence);
+		case STATE_WAIT_FOR_CENTER:
+			DEBUG_PRINTF("In Wait for Center State");
+			_minigame_WaitForCenter();
+			_gameState = STATE_RUN_FLASHES;
+			break;
+		case STATE_RUN_FLASHES:
+			DEBUG_PRINTF("In Run Flashes State");
+			_minigame_RunFlashSequence(&flashSequence);
+			_gameState = STATE_ROTATE_ARROW;
+			break;
+		case STATE_ROTATE_ARROW:
+			DEBUG_PRINTF("In rotate Arrow State");
+			gameData.current_Player += _minigame_RotateArrow(gameData.players);
+			_gameState = STATE_ROTATE_BOARD;
+			break;
+		case STATE_ROTATE_BOARD:
+			DEBUG_PRINTF("In checkRotation State");
+			success = _minigame_RunCheckRotationTo(gameData.current_Player);
+			_gameState = success ? STATE_ENTER_FLASH_SEQUENCE : STATE_FAILED;
+			break;
+		case STATE_ENTER_FLASH_SEQUENCE:
+			DEBUG_PRINTF("In Enter Sequence State");
+			success = _minigame_CheckSequence();
+			_gameState = success ? STATE_VICTORY : STATE_FAILED;
+			break;
+		case STATE_FAILED:
+			display_ScrollText("      YOU FAILED");
+			HAL_Delay(WAIT_DELAY_MS);
+			_gameState = STATE_CALCULATE_FLASHES;
+			break;
+		case STATE_VICTORY:
+			display_ScrollText("      YOU WON");
+			HAL_Delay(WAIT_DELAY_MS);
+			_gameState = STATE_CALCULATE_FLASHES;
 			break;
 		default:
 			DEBUG_PRINTF("Wrong state for state machine!!!");
 			break;
 		}
 	}
-
-	double magn[3];
-
-//	compass_GetRawValues(magn_vals);
-//	DEBUG_PRINTF("Raw Values x: %i, y: %i, z: %i", magn_vals[0], magn_vals[1], magn_vals[2]);
-	compass_GetValues(magn);
-	DEBUG_PRINTF("Magn Values x: %i, y: %i, z: %i", magn[0], magn[1], magn[2]);
-	DEBUG_PRINTF("heading is %d  !", (int32_t ) heading_Calc_getHeading(magn[0], magn[1]));
-	DEBUG_PRINTF("\033[3A");
-	HAL_Delay(1000);
 }

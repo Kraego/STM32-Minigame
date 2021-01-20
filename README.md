@@ -48,6 +48,5 @@ The following hardware of the STM32L476G-DISCO Board board is used:
   * there is a timeout for doing this -> the bars on the display visualize this.
 7. Verification:
   * If the user enter the sequence correct: the display shows Victory.
-  * If the user has failed: 
-    * check if player count == 1 -> remaining player has won.
-    * otherwise next remaining player in line continues with step 1.
+  * If the user has failed: the display shows Failed
+
