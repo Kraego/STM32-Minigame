@@ -25,7 +25,7 @@ typedef struct {
 	void (*callbackCenter)();
 }joystick_callbacks_t;
 
-void joystick_init();
-joystick_press_t joystick_waitForPress();
+void joystick_Init();
+joystick_press_t joystick_WaitForPress();
 
 #endif /* HAL_JOYSTICK_H_ */

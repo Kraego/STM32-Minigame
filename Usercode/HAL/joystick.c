@@ -68,7 +68,7 @@ void EXTI9_5_IRQHandler(void) {
 	currentPressed = DOWN;
 }
 
-void joystick_init(){
+void joystick_Init(){
 	BSP_JOY_Init(JOY_MODE_EXTI);
 }
 
@@ -77,7 +77,7 @@ void joystick_init(){
  *
  * @return the pressed joystick direction.
  */
-joystick_press_t joystick_waitForPress() {
+joystick_press_t joystick_WaitForPress() {
 	joystick_press_t previousPressed = currentPressed;
 	joystick_press_t pressed;
 
@@ -89,22 +89,22 @@ joystick_press_t joystick_waitForPress() {
 	return pressed;
 }
 
-void joystick_register_up_cb(void (*cb)()) {
+void joystick_RegisterUpCb(void (*cb)()) {
 	_callbacks.callbackUp = cb;
 }
 
-void joystick_register_down_cb(void (*cb)()) {
+void joystick_RegisterDownCb(void (*cb)()) {
 	_callbacks.callbackDown = cb;
 }
 
-void joystick_register_left_cb(void (*cb)()) {
+void joystick_RegisterLeftCb(void (*cb)()) {
 	_callbacks.callbackLeft = cb;
 }
 
-void joystick_register_right_cb(void (*cb)()) {
+void joystick_RegisterRightCb(void (*cb)()) {
 	_callbacks.callbackRight = cb;
 }
 
-void joystick_register_center_cb(void (*cb)()) {
+void joystick_RegisterCenterCb(void (*cb)()) {
 	_callbacks.callbackCenter = cb;
 }

@@ -7,7 +7,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
+#include <time.h>
 #include "minigame.h"
+#include "led.h"
 #include "joystick.h"
 #include "compass.h"
 #include "display.h"
@@ -28,9 +30,8 @@
 #define DIFF_MEDIUM_FLASH_CNT	(5)
 #define DIFF_ADVANCED_FLASH_CNT	(7)
 #define DIFF_HARDCORE_FLASH_CNT	(15)
+#define FLASH_TIME_MS			(500)
 
-
-#define DIFF_INCR_CURRENT	((_gameConfig.difficulty + 1) % DIFF_LEVEL_CNT)
 #define DIFF_DECR_CURRENT	(_gameConfig.difficulty == DIFF_EASY ? DIFF_HARDCORE : (_gameConfig.difficulty - 1) % DIFF_LEVEL_CNT)
 
 typedef enum {
@@ -51,17 +52,23 @@ typedef struct {
 } gameConfig_t;
 
 typedef enum {
-	GREEN, RED
+	GREEN = 0, RED = 1
 } gameFlash_t;
 
+typedef struct {
+	gameFlash_t *sequence;
+	uint32_t flashCount;
+} gameFlashSequence_t;
+
+static const gameFlash_t flashMap[] = { GREEN, RED };
 static char difficulty_map[DIFF_LEVEL_CNT][DIFF_LEVE_STRLEN] = { DIFF_EASY_TXT, DIFF_MEDIUM_TXT, DIFF_ADVANCED_TXT,
-		DIFF_HARDCORE_TXT };
-static menuSelection_t _menuSelection = MENU_PLAY;
+DIFF_HARDCORE_TXT };
+
 static gameState_t _gameState = STATE_INITIAL_SELECTION;
-static gameConfig_t _gameConfig = { };
 
 static void _minigame_mainMenu() {
 	joystick_press_t input = NOTHING;
+	menuSelection_t _menuSelection = MENU_PLAY;
 
 	display_ScrollText("         MINIGAME");
 	HAL_Delay(1500);
@@ -69,7 +76,7 @@ static void _minigame_mainMenu() {
 	display_Write(PLAY_TXT);
 
 	while (input != CENTER) {
-		input = joystick_waitForPress();
+		input = joystick_WaitForPress();
 
 		if (input == UP || input == DOWN) {
 			if (_menuSelection == MENU_PLAY) {
@@ -89,98 +96,171 @@ static void _minigame_mainMenu() {
 	}
 }
 
-static void _minigame_configPlayers() {
+static void _minigame_configPlayers(gameConfig_t *gameConfig) {
 	joystick_press_t input = NOTHING;
 	uint32_t playerCount = 2;
 
 	display_Write(PLAYER_CNT_2);
-	_gameConfig.players = playerCount;
+	gameConfig->players = playerCount;
 
 	while (input != CENTER) {
-		input = joystick_waitForPress();
+		input = joystick_WaitForPress();
 
 		if (input == UP || input == DOWN) {
-			if (_gameConfig.players == 2) {
+			if (gameConfig->players == 2) {
 				display_Write(PLAYER_CNT_4);
-				_gameConfig.players = 4;
-			} else if (_gameConfig.players == 4) {
+				gameConfig->players = 4;
+			} else if (gameConfig->players == 4) {
 				display_Write(PLAYER_CNT_2);
-				_gameConfig.players = 2;
+				gameConfig->players = 2;
 			}
 		}
 	}
 }
 
-static void _minigame_configDifficulty() {
+static void _minigame_incrDifficulty(gameConfig_t *gameConfig) {
+	gameConfig->difficulty = (gameConfig->difficulty + 1) % DIFF_LEVEL_CNT;
+}
+
+static void _minigame_decrDifficulty(gameConfig_t *gameConfig) {
+	gameConfig->difficulty =
+			gameConfig->difficulty == DIFF_EASY ? DIFF_HARDCORE : (gameConfig->difficulty - 1) % DIFF_LEVEL_CNT;
+}
+
+static void _minigame_configDifficulty(gameConfig_t *gameConfig) {
 	joystick_press_t input = NOTHING;
 
 	display_Write(DIFF_MEDIUM_TXT);
-	_gameConfig.difficulty = DIFF_MEDIUM;
+	gameConfig->difficulty = DIFF_MEDIUM;
 
 	while (input != CENTER) {
-		input = joystick_waitForPress();
+		input = joystick_WaitForPress();
 
 		if (input == UP) {
-			_gameConfig.difficulty = DIFF_INCR_CURRENT;
+			_minigame_incrDifficulty(gameConfig);
 		} else if (input == DOWN) {
-			_gameConfig.difficulty = DIFF_DECR_CURRENT;
+			_minigame_decrDifficulty(gameConfig);
 		}
-		display_Write(difficulty_map[_gameConfig.difficulty]);
+		display_Write(difficulty_map[gameConfig->difficulty]);
 	}
 }
 
-static void _minigame_config() {
-	_minigame_configPlayers();
-	_minigame_configDifficulty();
-	DEBUG_PRINTF("Start game for %d player: difficulty is '%s'", _gameConfig.players,
-			difficulty_map[_gameConfig.difficulty]);
+static void _minigame_config(gameConfig_t *gameConfig) {
+	_minigame_configPlayers(gameConfig);
+	_minigame_configDifficulty(gameConfig);
+	DEBUG_PRINTF("Start game for %d player: difficulty is '%s'", gameConfig->players,
+			difficulty_map[gameConfig->difficulty]);
 	_gameState = STATE_CALCULATE_FLASHES;
 }
 
 static void _minigame_generateRandomFlash(gameFlash_t *flashSequence, uint32_t flashCount) {
+	uint32_t flashsTodo = flashCount;
+	uint32_t idx = 0;
+	srand(HAL_GetTick());
 
+	while (flashsTodo) {
+		uint32_t flashIdx = rand() % 2;
+		flashSequence[idx++] = flashMap[flashIdx];
+		flashsTodo--;
+	}
 }
 
-static void _minigame_calculateFlashSequence(gameFlash_t **flashSequence) {
-	switch (_gameConfig.difficulty) {
+/**
+ * Generate a random flash sequence. Attention: flashSequence must be freed by caller.
+ *
+ * @param flashSequence the generated Flashsequence
+ * @param difficulty difficulty of the flashsequence
+ *
+ * @return the flash count of the sequence
+ */
+static uint32_t _minigame_calculateFlashSequence(gameFlash_t **flashSequence, difficulty_t difficulty) {
+	uint32_t flashCount;
+
+	switch (difficulty) {
 	case DIFF_EASY:
-		*flashSequence = (gameFlash_t *) calloc(DIFF_EASY_FLASH_CNT, sizeof(gameFlash_t));
-		assert(*flashSequence != NULL);
+		*flashSequence = (gameFlash_t*) calloc(DIFF_EASY_FLASH_CNT, sizeof(gameFlash_t));
 		_minigame_generateRandomFlash(*flashSequence, DIFF_EASY_FLASH_CNT);
+		flashCount = DIFF_EASY_FLASH_CNT;
 		break;
 	case DIFF_MEDIUM:
-		*flashSequence = (gameFlash_t *) calloc(DIFF_MEDIUM_FLASH_CNT, sizeof(gameFlash_t));
+		*flashSequence = (gameFlash_t*) calloc(DIFF_MEDIUM_FLASH_CNT, sizeof(gameFlash_t));
 		assert(*flashSequence != NULL);
 		_minigame_generateRandomFlash(*flashSequence, DIFF_MEDIUM_FLASH_CNT);
+		flashCount = DIFF_MEDIUM_FLASH_CNT;
 		break;
 	case DIFF_ADVANCED:
-		*flashSequence = (gameFlash_t *) calloc(DIFF_ADVANCED_FLASH_CNT, sizeof(gameFlash_t));
+		*flashSequence = (gameFlash_t*) calloc(DIFF_ADVANCED_FLASH_CNT, sizeof(gameFlash_t));
 		assert(*flashSequence != NULL);
 		_minigame_generateRandomFlash(*flashSequence, DIFF_ADVANCED_FLASH_CNT);
+		flashCount = DIFF_ADVANCED_FLASH_CNT;
 		break;
 	case DIFF_HARDCORE:
-		*flashSequence = (gameFlash_t *) calloc(DIFF_HARDCORE_FLASH_CNT, sizeof(gameFlash_t));
+		*flashSequence = (gameFlash_t*) calloc(DIFF_HARDCORE_FLASH_CNT, sizeof(gameFlash_t));
 		assert(*flashSequence != NULL);
 		_minigame_generateRandomFlash(*flashSequence, DIFF_HARDCORE_FLASH_CNT);
+		flashCount = DIFF_HARDCORE_FLASH_CNT;
 		break;
 	default:
 		DEBUG_PRINTF("Invalid difficulty level for calculate flash!!!");
 		break;
 	}
 	_gameState = STATE_PLAY;
+	return flashCount;
 }
 
-static void _minigame_play() {
+static void _minigame_FlashGreen(){
+	led_SwitchGreen(true);
+	HAL_Delay(FLASH_TIME_MS);
+	led_SwitchGreen(false);
+}
+
+static void _minigame_FlashRed(){
+	led_SwitchRed(true);
+	HAL_Delay(FLASH_TIME_MS);
+	led_SwitchRed(false);
+}
+
+static void _minigame_RunFlashSequence(gameFlashSequence_t *flashSequence) {
+	uint32_t flashsTodo = flashSequence->flashCount;
+	uint32_t idx = 0;
+
+	DEBUG_PRINTF("Running flashes ...");
+	while(flashsTodo){
+		if(flashSequence->sequence[idx++] == GREEN){
+			_minigame_FlashGreen();
+		} else {
+			_minigame_FlashRed();
+		}
+		HAL_Delay(FLASH_TIME_MS);
+		flashsTodo--;
+	}
+}
+
+static void _minigame_play(gameFlashSequence_t *flashSequence) {
+	joystick_press_t input = NOTHING;
+
 	display_Write("GO");
+	input = joystick_WaitForPress();
 
-	joystick_waitForPress();
+	while (input != CENTER) {
+	};
+	HAL_Delay(250);
+
+	_minigame_RunFlashSequence(flashSequence);
+	HAL_Delay(250);
+
+
 }
 
+/**
+ * Initialize minigame
+ */
 void minigame_Init(void) {
 	uint32_t ret;
-	DEBUG_PRINTF("starting minigame!");
+	DEBUG_PRINTF("starting mini game!");
 	display_Init();
-	joystick_init();
+	led_Init();
+	joystick_Init();
 	ret = compass_Init();
 
 	if (ret != 0) {
@@ -191,8 +271,13 @@ void minigame_Init(void) {
 	display_Clear();
 }
 
+/**
+ * Run the minigame. Function never returns.
+ */
 void minigame_Run(void) {
-	gameFlash_t *flashSequence = NULL;
+	gameFlash_t *flashes = NULL;
+	gameFlashSequence_t flashSequence = { };
+	gameConfig_t gameConfig = { };
 
 	DEBUG_PRINTF("Starting game ... ");
 
@@ -204,15 +289,17 @@ void minigame_Run(void) {
 			break;
 		case STATE_CONFIGURE:
 			DEBUG_PRINTF("In Configure State");
-			_minigame_config();
+			_minigame_config(&gameConfig);
 			break;
 		case STATE_CALCULATE_FLASHES:
 			DEBUG_PRINTF("In Calculate Flashes State");
-			_minigame_calculateFlashSequence(&flashSequence);
+			uint32_t flashCount = _minigame_calculateFlashSequence(&flashes, gameConfig.difficulty);
+			flashSequence.sequence = flashes;
+			flashSequence.flashCount = flashCount;
 			break;
 		case STATE_PLAY:
 			DEBUG_PRINTF("In Play State");
-			_minigame_play();
+			_minigame_play(&flashSequence);
 			break;
 		default:
 			DEBUG_PRINTF("Wrong state for state machine!!!");
