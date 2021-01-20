@@ -301,7 +301,16 @@ void minigame_Init(void) {
 	display_Clear();
 }
 
-bool _minigame_RunCheckRotationTo(uint32_t toPlayer){
+bool _minigame_RunCheckRotationTo(uint32_t toPlayer, uint32_t players){
+	uint32_t startHeading = heading_GetHeading();
+	uint32_t degreesBetweenPlayers = players == 4 ? 90 : 180;
+	uint32_t destinationHeading = (startHeading + toPlayer * degreesBetweenPlayers - 180) % 360;
+
+	DEBUG_PRINTF("Start heading is %i target is %i!", startHeading, destinationHeading);
+	display_Write("ROTATE");
+	display_ShowBars(4);
+
+	HAL_Delay(1000);
 	return false;
 }
 
@@ -356,7 +365,7 @@ void minigame_Run(void) {
 			break;
 		case STATE_ROTATE_BOARD:
 			DEBUG_PRINTF("In checkRotation State");
-			success = _minigame_RunCheckRotationTo(gameData.current_Player);
+			success = _minigame_RunCheckRotationTo(gameData.current_Player, gameData.players);
 			_gameState = success ? STATE_ENTER_FLASH_SEQUENCE : STATE_FAILED;
 			break;
 		case STATE_ENTER_FLASH_SEQUENCE:

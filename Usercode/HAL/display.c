@@ -43,27 +43,54 @@ int32_t display_Write(char *text) {
 	return 0;
 }
 
+/**
+ * Scroll text.
+ *
+ * @param text the text
+ */
 void display_ScrollText(char *text) {
 	BSP_LCD_GLASS_Clear();
 	BSP_LCD_GLASS_ScrollSentence((uint8_t *) text, SCROLL_REPEATS, SCROLL_SPEED);
 }
 
-void display_arrayWest() {
+/**
+ * Arrow in the middle of display pointing west (relative to the board)
+ */
+void display_ArrowWest() {
 	BSP_LCD_GLASS_Clear();
 	BSP_LCD_GLASS_DisplayArrowWest();
 }
 
-void display_arrayEast() {
+/**
+ * Arrow in the middle of display pointing east (relative to the board)
+ */
+void display_ArrowEast() {
 	BSP_LCD_GLASS_Clear();
 	BSP_LCD_GLASS_DisplayArrowEast();
 }
 
-void display_arrayNorth() {
+/**
+ * Arrow in the middle of display pointing north (relative to the board)
+ */
+void display_ArrowNorth() {
 	BSP_LCD_GLASS_Clear();
 	BSP_LCD_GLASS_DisplayArrowNorth();
 }
 
-void display_arraySouth() {
+/**
+ * Arrow in the middle of display pointing south (relative to the board)
+ */
+void display_ArrowSouth() {
 	BSP_LCD_GLASS_Clear();
 	BSP_LCD_GLASS_DisplayArrowSouth();
+}
+
+/**
+ *
+ * Show Bars right at the lcd
+ *
+ * @param level 0 is empty 4 is full
+ */
+void display_ShowBars(uint32_t level) {
+	BSP_LCD_GLASS_BarLevelConfig(level);
 }

@@ -12,10 +12,11 @@
 
 void display_Init(void);
 void display_Clear(void);
-void display_arrayWest(void);
-void display_arrayEast(void);
-void display_arrayNorth(void);
-void display_arraySouth(void);
+void display_ArrowWest(void);
+void display_ArrowEast(void);
+void display_ArrowNorth(void);
+void display_ArrowSouth(void);
+void display_ShowBars(uint32_t level);
 void display_ScrollText(char *text);
 int32_t display_Write(char *text);
 
