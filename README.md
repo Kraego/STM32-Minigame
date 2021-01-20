@@ -45,8 +45,9 @@ The following hardware of the STM32L476G-DISCO Board board is used:
 4. Then an arrow on the LCD starts rotating
 5. When the arrow stops it points to a player
 6. This player must now rotate the board so it's in front of him (see step 1.)
-  * there is a timeout for doing this -> the bars on the display visualize this.
+   * there is a timeout for doing this -> the bars on the display visualize this.
 7. Verification:
-  * If the user enter the sequence correct: the display shows Victory.
-  * If the user has failed: the display shows Failed
+     * If the user enter the sequence correct: the display shows Victory.
+     * If the user has failed: the display shows Failed
+8. Back to step 1.
 
