@@ -20,7 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "debug.h"
-#include "usercode.h"
+#include "minigame.h"
 #include "usb_host.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -120,7 +120,7 @@ int main(void)
   MX_USB_HOST_Init();
   /* USER CODE BEGIN 2 */
   DEBUG_INIT(&huart2);
-  usercode_Init();
+  minigame_Init();
 
 
   /* USER CODE END 2 */
@@ -131,7 +131,7 @@ int main(void)
   {
     /* USER CODE END WHILE */
     MX_USB_HOST_Process();
-    usercode_Run();
+    minigame_Run();
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

@@ -1,19 +1,21 @@
 /*
- * usercode.c
+ * minigame.c
  *
  *  Created on: 17 Jan 2021
  *      Author: tkrax
  */
+#include <minigame.h>
+#include "joystick.h"
 #include "compass.h"
 #include "display.h"
-#include "usercode.h"
 #include "debug.h"
 #include "heading_calc.h"
 
-void usercode_Init(void) {
+void minigame_Init(void) {
 	uint32_t ret;
 	DEBUG_PRINTF("starting minigame!");
 	display_Init();
+	joystick_init(); // zum Beispiel up/down selection, left right für sequencen, center bestätigen
 	ret = compass_Init();
 
 	if (ret != 0) {
@@ -22,10 +24,14 @@ void usercode_Init(void) {
 		compass_Calibrate();
 	}
 	display_Clear();
-	display_Write("GO");
 }
 
-void usercode_Run(void) {
+void minigame_Run(void) {
+	display_ScrollText("   SELECT");
+
+	// hier statemachine siehe flussdiagram
+
+
 	double magn[3];
 
 //	compass_GetRawValues(magn_vals);
