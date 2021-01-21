@@ -48,7 +48,7 @@ static bool isCalibrated() {
  * @retval 0 if success, -1 if no calibration data available - run compass_Calibrate
  */
 uint32_t compass_Init() {
-	DEBUG_PRINTF("Initializing Compass");
+	DEBUG_PRINTF("I: Initializing Compass");
 
 	BSP_QSPI_Init();
 	BSP_QSPI_Read((uint8_t *) &calibration, CALIBRATION_ADDRESS, sizeof(compass_calibration_t));
@@ -56,7 +56,7 @@ uint32_t compass_Init() {
 
 	if (isCalibrated())
 	{
-		DEBUG_PRINTF("Loaded stored calibration conifg");
+		DEBUG_PRINTF("I: Loaded stored calibration conifg");
 	} else {
 		return -1;
 	}
@@ -106,7 +106,7 @@ void compass_Calibrate() {
 	int16_t yMin = INT16_MAX;
 	int16_t zMin = INT16_MAX;
 
-	DEBUG_PRINTF("Calibrating compass ...");
+	DEBUG_PRINTF("I: Calibrating compass ...");
 	while (toDo) {
 		compass_GetRawValues(magBuffer);
 		xMax = max(xMax, magBuffer[0]);
@@ -125,10 +125,10 @@ void compass_Calibrate() {
 	calibration.biasZ = (zMax + zMin) / 2;
 	calibration.rangeZ = (zMax - zMin) / 2;
 
-	DEBUG_PRINTF("Calibration done");
+	DEBUG_PRINTF("I: Calibration done");
 
 	calibration.magic = CALIBRATION_MAGIC;
 	BSP_QSPI_Erase_Chip();
 	BSP_QSPI_Write((uint8_t *) &calibration, CALIBRATION_ADDRESS, sizeof(compass_calibration_t));
-	DEBUG_PRINTF("Calibration stored");
+	DEBUG_PRINTF("I: Calibration stored");
 }

@@ -11,5 +11,6 @@
 #include <stdint.h>
 
 uint32_t heading_GetHeading();
+uint32_t heading_NormalizeDegree(uint32_t degrees);
 
 #endif /* UTILS_HEADING_CALC_H_ */

@@ -30,7 +30,7 @@
 #define DIFF_EASY_FLASH_CNT		(3)
 #define DIFF_MEDIUM_FLASH_CNT	(5)
 #define DIFF_ADVANCED_FLASH_CNT	(7)
-#define ROTATION_TOLERANCE_DEG	(15)
+#define ROTATION_TOLERANCE_DEG	(5)
 #define DIFF_HARDCORE_FLASH_CNT	(15)
 #define FLASH_TIME_MS			(500)
 #define WAIT_DELAY_MS			(250)
@@ -52,6 +52,7 @@ typedef enum {
 	STATE_ENTER_FLASH_SEQUENCE,
 	STATE_VICTORY,
 	STATE_FAILED,
+	STATE_DONE
 } gameState_t;
 
 typedef enum {
@@ -83,7 +84,7 @@ static void _minigame_MainMenu() {
 	joystick_press_t input = NOTHING;
 	menuSelection_t _menuSelection = MENU_PLAY;
 
-	display_ScrollText("         MINIGAME");
+	// display_ScrollText("         MINIGAME"); // TODO
 	HAL_Delay(WAIT_DELAY_MS);
 
 	display_Write(PLAY_TXT);
@@ -162,7 +163,7 @@ static void _minigame_Config(gameData_t *gameConfig) {
 	gameConfig->current_Player = 0;
 	_minigame_ConfigPlayers(gameConfig);
 	_minigame_ConfigDifficulty(gameConfig);
-	DEBUG_PRINTF("Start game for %d player: difficulty is '%s'", gameConfig->players,
+	DEBUG_PRINTF("I: Start game for %d player: difficulty is '%s'", gameConfig->players,
 			difficulty_map[gameConfig->difficulty]);
 }
 
@@ -214,7 +215,7 @@ static uint32_t _minigame_CalculateFlashSequence(gameFlash_t **flashSequence, di
 		flashCount = DIFF_HARDCORE_FLASH_CNT;
 		break;
 	default:
-		DEBUG_PRINTF("Invalid difficulty level for calculate flash!!!");
+		DEBUG_PRINTF("E: Invalid difficulty level for calculate flash!!!");
 		break;
 	}
 	return flashCount;
@@ -257,10 +258,10 @@ static void _minigame_RunFlashSequence(gameFlashSequence_t *flashSequence) {
 static uint32_t _minigame_RotateArrow(uint32_t players) {
 	uint32_t delay_ms = 0;
 	uint32_t randomness;
-	players = 4;
+
 	srand(HAL_GetTick());
 	randomness = rand() % players;
-	DEBUG_PRINTF("Add Randomness %d", randomness);
+	DEBUG_PRINTF("I: Add Randomness %d", randomness);
 
 	while (delay_ms <= 250) {
 		arrowRotator_FullRoation(delay_ms);
@@ -283,55 +284,71 @@ static void _minigame_WaitForCenter() {
 	HAL_Delay(WAIT_DELAY_MS);
 }
 
+static bool _minigame_CheckHeading(uint32_t target, uint32_t tolerance){
+	uint32_t current = heading_GetHeading();
+
+	if (current > target){
+		return (current - target) < tolerance;
+	} else {
+		return (target - current) < tolerance;
+	}
+}
+
+static bool _minigame_RunCheckRotationTo(uint32_t toPlayer, uint32_t players){
+	uint32_t startHeading = heading_GetHeading();
+	uint32_t degreesBetweenPlayers = players == 4 ? 90 : 180;
+	uint32_t destinationHeading = (startHeading + toPlayer * degreesBetweenPlayers) % 360;
+	uint32_t startTime_ms;
+
+	DEBUG_PRINTF("I: Start heading is %d target is %d (to player: %d)! ", startHeading, destinationHeading, toPlayer);
+	display_Write("ROTATE");
+	display_ShowBars(4);
+
+	startTime_ms = HAL_GetTick();
+	while (!_minigame_CheckHeading(destinationHeading, ROTATION_TOLERANCE_DEG)){
+		uint32_t diff = HAL_GetTick() - startTime_ms;
+
+		if (diff > 6000){
+			DEBUG_PRINTF("I: Heading at end was %d", heading_GetHeading());
+			return false;
+		}
+
+		if (diff < 1500) {
+			display_ShowBars(3);
+		} else if (diff < 3000) {
+			display_ShowBars(2);
+		}else if (diff <= 4500) {
+			display_ShowBars(1);
+		}
+		HAL_Delay(50);
+	}
+	display_ShowBars(0);
+	return true;
+}
+
+static bool _minigame_CheckSequence(){
+	display_Write("FLASH");
+	HAL_Delay(5000);
+	return false;
+}
+
 /**
  * Initialize minigame
  */
 void minigame_Init(void) {
 	uint32_t ret;
-	DEBUG_PRINTF("starting mini game!");
+	DEBUG_PRINTF("I: starting mini game!");
 	display_Init();
 	led_Init();
 	joystick_Init();
 	ret = compass_Init();
 
 	if (ret != 0) {
-		DEBUG_PRINTF("No calibration found ...");
+		DEBUG_PRINTF("W: No calibration found ...");
 		display_Write("CALIB");
 		compass_Calibrate();
 	}
 	display_Clear();
-}
-
-bool _minigame_RunCheckRotationTo(uint32_t toPlayer, uint32_t players){
-	uint32_t startHeading = heading_GetHeading();
-	uint32_t degreesBetweenPlayers = players == 4 ? 90 : 180;
-	uint32_t destinationHeading = (startHeading + toPlayer * degreesBetweenPlayers - 180) % 360;
-	uint32_t startTime_ms = HAL_GetTick();
-
-	DEBUG_PRINTF("Start heading is %d target is %d!", startHeading, destinationHeading);
-	display_Write("ROTATE");
-	display_ShowBars(5);
-
-	while ((abs(destinationHeading - heading_GetHeading()) > ROTATION_TOLERANCE_DEG)){
-		uint32_t diff = startTime_ms - HAL_GetTick();
-
-		if (diff > 250) {
-			display_ShowBars(4);
-		} else if (diff > 500) {
-			display_ShowBars(3);
-		} else if (diff > 750) {
-			display_ShowBars(1);
-		} else if (diff > 1000) {
-			return false;
-		}
-		HAL_Delay(50);
-	}
-
-	return true;
-}
-
-bool _minigame_CheckSequence(){
-	return false;
 }
 
 /**
@@ -343,63 +360,66 @@ void minigame_Run(void) {
 	gameData_t gameData = { };
 	bool success;
 
-	DEBUG_PRINTF("Starting game ... ");
+	//_gameState = STATE_CALCULATE_FLASHES; // TODO: remove
 
 	while (true) {
 		switch (_gameState) {
 		case STATE_INITIAL_SELECTION:
-			DEBUG_PRINTF("In Initial Selection State");
+			DEBUG_PRINTF("I: In Initial Selection State");
 			_minigame_MainMenu();
 			break;
 		case STATE_CONFIGURE:
-			DEBUG_PRINTF("In Configure State");
+			DEBUG_PRINTF("I: In Configure State");
 			_minigame_Config(&gameData);
 			_gameState = STATE_CALCULATE_FLASHES;
 			break;
 		case STATE_CALCULATE_FLASHES:
-			DEBUG_PRINTF("In Calculate Flashes State");
+			DEBUG_PRINTF("I: In Calculate Flashes State");
 			uint32_t flashCount = _minigame_CalculateFlashSequence(&flashes, gameData.difficulty);
 			flashSequence.sequence = flashes;
 			flashSequence.flashCount = flashCount;
 			_gameState = STATE_WAIT_FOR_CENTER;
 			break;
 		case STATE_WAIT_FOR_CENTER:
-			DEBUG_PRINTF("In Wait for Center State");
+			DEBUG_PRINTF("I: In Wait for Center State");
 			_minigame_WaitForCenter();
 			_gameState = STATE_RUN_FLASHES;
 			break;
 		case STATE_RUN_FLASHES:
-			DEBUG_PRINTF("In Run Flashes State");
+			DEBUG_PRINTF("I: In Run Flashes State");
 			_minigame_RunFlashSequence(&flashSequence);
 			_gameState = STATE_ROTATE_ARROW;
 			break;
 		case STATE_ROTATE_ARROW:
-			DEBUG_PRINTF("In rotate Arrow State");
+			DEBUG_PRINTF("I: In rotate Arrow State");
 			gameData.current_Player += _minigame_RotateArrow(gameData.players);
 			_gameState = STATE_ROTATE_BOARD;
 			break;
 		case STATE_ROTATE_BOARD:
-			DEBUG_PRINTF("In checkRotation State");
+			DEBUG_PRINTF("I: In checkRotation State");
 			success = _minigame_RunCheckRotationTo(gameData.current_Player, gameData.players);
 			_gameState = success ? STATE_ENTER_FLASH_SEQUENCE : STATE_FAILED;
 			break;
 		case STATE_ENTER_FLASH_SEQUENCE:
-			DEBUG_PRINTF("In Enter Sequence State");
+			DEBUG_PRINTF("I: In Enter Sequence State");
 			success = _minigame_CheckSequence();
 			_gameState = success ? STATE_VICTORY : STATE_FAILED;
 			break;
 		case STATE_FAILED:
 			display_ScrollText("      YOU FAILED");
 			HAL_Delay(WAIT_DELAY_MS);
-			_gameState = STATE_CALCULATE_FLASHES;
+			_gameState = STATE_DONE;
 			break;
 		case STATE_VICTORY:
-			display_ScrollText("      YOU WON");
+			display_ScrollText("      VICTORY");
 			HAL_Delay(WAIT_DELAY_MS);
-			_gameState = STATE_CALCULATE_FLASHES;
+			_gameState = STATE_DONE;
 			break;
+		case STATE_DONE:
+			free(flashSequence.sequence);
+			_gameState = STATE_CALCULATE_FLASHES;
 		default:
-			DEBUG_PRINTF("Wrong state for state machine!!!");
+			DEBUG_PRINTF("E: Wrong state for state machine!!!");
 			break;
 		}
 	}

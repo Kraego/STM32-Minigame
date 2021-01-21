@@ -5,6 +5,8 @@
  *      Author: tkrax
  */
 #include <string.h>
+#include <assert.h>
+#include "debug.h"
 #include "display.h"
 #include "stm32l476g_discovery_glass_lcd.h"
 
@@ -92,5 +94,28 @@ void display_ArrowSouth() {
  * @param level 0 is empty 4 is full
  */
 void display_ShowBars(uint32_t level) {
-	BSP_LCD_GLASS_BarLevelConfig(level);
+	uint32_t bars;
+
+	switch (level)
+	{
+	case 4:
+		bars = BATTERYLEVEL_FULL;
+		break;
+	case 3:
+		bars = BATTERYLEVEL_3_4;
+		break;
+	case 2:
+		bars = BATTERYLEVEL_1_2;
+		break;
+	case 1:
+		bars = BATTERYLEVEL_1_4;
+		break;
+	case 0:
+		bars = BATTERYLEVEL_OFF;
+		break;
+	default:
+		DEBUG_PRINTF("E: Wrong Level for Showbars");
+	}
+
+	BSP_LCD_GLASS_BarLevelConfig(bars);
 }

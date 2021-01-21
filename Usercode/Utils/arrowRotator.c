@@ -8,13 +8,17 @@
 #include "display.h"
 #include "stm32l4xx_hal.h"
 
-#define ONE_ROTATION_CNT	(5)
+#define ONE_ROTATION_CNT	(4)
 
-static void (*rotation[ONE_ROTATION_CNT]) () = {display_ArrowNorth, display_ArrowEast, display_ArrowSouth, display_ArrowWest, display_ArrowNorth};
-
+static void (*rotation[ONE_ROTATION_CNT])() = {
+	display_ArrowSouth,
+	display_ArrowWest,
+	display_ArrowNorth,
+	display_ArrowEast
+	};
 
 /**
- * Rotate the display arrow - starting north til north - clockwise
+ * Rotate the display arrow - starting south til east - clockwise
  *
  * @param delay_ms delay between rotation step
  */
@@ -23,7 +27,7 @@ void arrowRotator_FullRoation(uint32_t delay_ms) {
 }
 
 /**
- * Do rotation steps - clockwise
+ * Do rotation steps - clockwise at least 1
  *
  * @param delay_ms delay between rotation step
  * @param times how many steps
@@ -32,10 +36,12 @@ void arrowRotator_Rotate(uint32_t delay_ms, uint32_t times) {
 	uint32_t count = times + 1;
 	uint32_t idx = 0;
 
-	while (count){
+	while (count) {
 		rotation[idx]();
 		idx = (idx + 1) % ONE_ROTATION_CNT;
-		HAL_Delay(delay_ms);
 		count--;
+		if (count) {
+			HAL_Delay(delay_ms);
+		}
 	}
 }

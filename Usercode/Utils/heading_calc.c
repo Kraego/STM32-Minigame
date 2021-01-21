@@ -36,3 +36,13 @@ uint32_t heading_GetHeading() {
 	double heading = _heading_CalcHeading(dataXYZ[0], dataXYZ[1]);
 	return (uint32_t) heading;
 }
+
+/**
+ * Normalize if <0 degrees
+ *
+ * @param degrees the actual degrees
+ * @return the normalized Degrees
+ */
+uint32_t heading_NormalizeDegree(uint32_t degrees){
+	return degrees < 0 ? degrees + 360 : degrees;
+}
