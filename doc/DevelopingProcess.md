@@ -151,7 +151,7 @@ MSB   { 1 , 1 , 0 , 0   }
 ```
 
 * Above you see how "A" the value for is created
-* No use this to calculate values for arrows.
+* Now use this to calculate values for arrows.
 
 #### Calculation
 
