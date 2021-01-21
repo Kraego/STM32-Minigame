@@ -13,7 +13,7 @@
 
 ## Common
 
-Here I try to describe how I developed the different parts of the project.
+Here I try to describe how I've developed the different parts of the project.
 
 ## The long way
 
@@ -27,7 +27,7 @@ First I tried mBedOS:
   * Now Debugging since requiring pyOCD (we need gdb)
   * imho: too highlevel/abstract
 
-Since I don't like to program every tiny bit myself. I found out that STM provides an BSP for this board (see: bsp_guide). To make this run i had to fix some warnings in the BSP (since the project is built with *-werror*)
+Since I don't like to program every tiny bit myself, just STM Cube with CMSIS HAL would not be satisfying. I found out that STM provides an BSP for this board (see: bsp_guide). To make this run i had to fix some warnings in the BSP (since the project is built with *-werror*)
 
 So I use STM Cube IDE with the BSP:
 * Pros:
@@ -40,7 +40,10 @@ So I use STM Cube IDE with the BSP:
 
 ### 2. Calculate Heading
 
-I looked up how to calculate the heading (without tiltcompensation since the board is rotated flat on the table), and came up with this solution:
+I looked up how to calculate the heading (without tilt compensation since the board is rotated flat on the table), and came up with this solution:
+
+<div style="page-break-after: always;"></div>
+
 
 ``` C
 /**  
@@ -55,11 +58,11 @@ double _heading_CalcHeading(double x, double y) {
 	return heading < 0 ? heading + 360 : heading;
 }
 ```
-After reading the first few values and printing them out, I recognized that the data can't be correct. So I found out that the MEMS sensor must be calibrated (cause of deviation in the production, every sensor is unique and must therefor be calibrated).
+After reading the first few values and printing them out, I recognized that the data can't be correct. So I found out that the magnet sensor must be calibrated (cause of deviation in the production, every sensor is unique and must therefor be calibrated).
 
 ### 3. Calibration
 
-Below you see the calibration method and the storing in the flash over QSPI.
+Below you see the calibration method and the storing in the flash memory over QSPI.
 
 ``` C
 void compass_Calibrate() {
@@ -110,7 +113,7 @@ Adding needed 4 Arrows as Character to BSP
 * Arrow West
 * West East
 
-* Since BSP not Building without Warnings and I building it with werror, I had to fix some warnings (Remove µ and ° (multi character which the display couldn't display anyway)).
+* Since the BSP was not building without warnings (building it with -werror Flag), I had to fix some warnings (Remove µ and ° (multi character which the display couldn't display anyway)).
 
 #### Starting Point
 
