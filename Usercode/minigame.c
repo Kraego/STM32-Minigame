@@ -34,7 +34,7 @@
 #define DIFF_HARDCORE_FLASH_CNT		(15)
 #define FLASH_TIME_MS				(500)
 #define WAIT_DELAY_MS				(250)
-#define FLASH_ENTER_TIMEOUT_TICKS	(4000)
+#define FLASH_ENTER_TIMEOUT_TICKS	(3000)
 
 #define DIFF_DECR_CURRENT	(_gameConfig.difficulty == DIFF_EASY ? DIFF_HARDCORE : (_gameConfig.difficulty - 1) % DIFF_LEVEL_CNT)
 

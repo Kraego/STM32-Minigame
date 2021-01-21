@@ -1,5 +1,5 @@
 ﻿<!-- omit in toc -->
-## Mini Reaction Game 
+# Mini Reaction Game 
 
 - [Project Idea](#project-idea)
 - [Development](#development)
@@ -12,9 +12,9 @@
 
 ## Project Idea
 
-Goal of the Project ist the development of a mini game. The game is described below.
+Goal of the Project was the development of a mini game. The game is described below.
 
-The following hardware of the STM32L476G-DISCO Board board is used:
+The following hardware of the STM32L476G-DISCOVERY Board is used:
 * Joystick
   * **up, down**: configuration, 
   * **right, left**: led flashing replication (green: right, red: left)
@@ -22,13 +22,23 @@ The following hardware of the STM32L476G-DISCO Board board is used:
 * LED (green and red) for flash sequence
 * LCD Display: Arrow + State messages
 ![The Arrow](images/Arrow.png)
-* Accelerometer and magnetometer (lsm303c)
+* Magnetometer MEMS (lsm303c)
 * (for mobility: battery or Powerbank over USB)
 
 ## Development
 
 * For development the STM32Cube IDE is used
 * To get a highlevel API the Board BSP from ST is used (see doc/bsp_guide.md)
+* Debug Printouts on UART2:
+  * can be activated via switch in *Usercode/Utils/debug.h*
+  ```
+  #define DEBUG_PRINT
+  ```
+  * Setting: 
+    * Baudrate: 9600
+    * Databits: 8
+    * Stopbits: 1
+    * Parity: None
 
 ## Architecture/Design
 
@@ -36,7 +46,7 @@ The following hardware of the STM32L476G-DISCO Board board is used:
 
 I tried to build up kind of a layered architecture, see below.
 
-![Flow Chart Game](images/project_layers.png)
+![Project Layers](images/project_layers.png)
 
 ### Game-Flow
 
@@ -50,11 +60,10 @@ Below you see the gameflow of the minigame. The states could be found in the sta
 
 * Configuration via joystick (selection), center is Enter, using LCD Display for output
 * Optional: Calibration of the mems magnet sensor (30 sec. rotating)
-  * You must fullfile at least one rotation!
+  * You must fullfil at least one full flat rotation!
 * Select player count 2 or 4 (rotation 90° or 180° ... limitation due display arrow)
 * Select difficulty level (easy, medium, advanced, hardcore)
-  * determing difficulty of the flash sequence (f.e.: easy - green, green, red)
-  * the goal is the sequence not the timing but if the pause between inputs > 1.5 seconds set state to *Failed*
+  * determing difficulty/length of the flash sequence (f.e.: easy - green, green, red)
 
 ### 2. The Game
 
@@ -66,8 +75,8 @@ Below you see the gameflow of the minigame. The states could be found in the sta
 6. When the arrow stops it points to the next player (the display shows Rotate and full bars)
 7. This player must now rotate the board so it's in front of him (see step 2.)
    * there is a timeout for doing this -> the bars on the display visualize this.
-8. When the board is at the right angle it shows FLASH -> now the player should replicate the sequence with the joystick (see Step 4)
+8. When the board is at the right angle it shows FLASH -> now the player should replicate the sequence with the joystick (see Step 4, timeout for this is 1.5 seconds/flash)
 9. Verification:
-     * If the user enter the sequence correct: the display shows Victory.
-     * If the user has failed: the display shows Failed
+     * If the user enter the sequence correct: the display shows "Victory".
+     * If the user has failed: the display shows "You Failed"
 10. Back to step 1.
