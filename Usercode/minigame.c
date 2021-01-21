@@ -284,17 +284,17 @@ static void _minigame_WaitForCenter() {
 	HAL_Delay(WAIT_DELAY_MS);
 }
 
-static bool _minigame_CheckHeading(uint32_t target, uint32_t tolerance){
+static bool _minigame_CheckHeading(uint32_t target, uint32_t tolerance) {
 	uint32_t current = heading_GetHeading();
 
-	if (current > target){
+	if (current > target) {
 		return (current - target) < tolerance;
 	} else {
 		return (target - current) < tolerance;
 	}
 }
 
-static bool _minigame_RunCheckRotationTo(uint32_t toPlayer, uint32_t players){
+static bool _minigame_RunCheckRotationTo(uint32_t toPlayer, uint32_t players) {
 	uint32_t startHeading = heading_GetHeading();
 	uint32_t degreesBetweenPlayers = players == 4 ? 90 : 180;
 	int32_t destinationHeading = startHeading - toPlayer * degreesBetweenPlayers;
@@ -307,10 +307,10 @@ static bool _minigame_RunCheckRotationTo(uint32_t toPlayer, uint32_t players){
 	display_ShowBars(4);
 
 	startTicks = HAL_GetTick();
-	while (!_minigame_CheckHeading(destinationHeading, ROTATION_TOLERANCE_DEG)){
+	while (!_minigame_CheckHeading(destinationHeading, ROTATION_TOLERANCE_DEG)) {
 		uint32_t diff = HAL_GetTick() - startTicks;
 
-		if (diff > 6000){
+		if (diff > 6000) {
 			DEBUG_PRINTF("I: Heading at end was %d", heading_GetHeading());
 			return false;
 		}
@@ -319,7 +319,7 @@ static bool _minigame_RunCheckRotationTo(uint32_t toPlayer, uint32_t players){
 			display_ShowBars(3);
 		} else if (diff < 3000) {
 			display_ShowBars(2);
-		}else if (diff <= 4500) {
+		} else if (diff <= 4500) {
 			display_ShowBars(1);
 		}
 		HAL_Delay(50);
@@ -328,7 +328,7 @@ static bool _minigame_RunCheckRotationTo(uint32_t toPlayer, uint32_t players){
 	return true;
 }
 
-static bool _minigame_CheckSequence(gameFlashSequence_t *flashSequence){
+static bool _minigame_CheckSequence(gameFlashSequence_t *flashSequence) {
 	display_Write("FLASH");
 	uint32_t flashsCheck = flashSequence->flashCount;
 	joystick_press_t input;
@@ -338,12 +338,12 @@ static bool _minigame_CheckSequence(gameFlashSequence_t *flashSequence){
 		joystick_WaitForPress(&input, FLASH_ENTER_TIMEOUT_TICKS);
 
 		if (flashSequence->sequence[idx++] == GREEN) {
-			if (input != JOYSTICK_RIGHT){
+			if (input != JOYSTICK_RIGHT) {
 				DEBUG_PRINTF("I: Failure expected JOYSTICK_RIGHT for flash %d", idx);
 				return false;
 			}
 		} else {
-			if (input != JOYSTICK_LEFT){
+			if (input != JOYSTICK_LEFT) {
 				DEBUG_PRINTF("I: Failure expected JOYSTICK_LEFT for flash %d", idx);
 				return false;
 			}

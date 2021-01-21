@@ -97,6 +97,9 @@ uint32_t compass_GetValues(double *pDataXYZ) {
 	return 0;
 }
 
+/**
+ * Run compass calibration - storing calibration data in flash
+ */
 void compass_Calibrate() {
 	int16_t magBuffer[3];
 	int16_t toDo = CALIBRATION_SAMPLES;

@@ -35,13 +35,13 @@ void display_Clear() {
  * @return -1 if text to long, 0 otherwise
  */
 int32_t display_Write(char *text) {
-	if (strlen(text) > DISPLAY_SIZE){
+	if (strlen(text) > DISPLAY_SIZE) {
 		return -1;
 	}
 
 	BSP_LCD_GLASS_Clear();
-	BSP_LCD_GLASS_DisplayChar((uint8_t *) "A", 0, 0, 1);
-	BSP_LCD_GLASS_DisplayString((uint8_t *) text);
+	BSP_LCD_GLASS_DisplayChar((uint8_t*) "A", 0, 0, 1);
+	BSP_LCD_GLASS_DisplayString((uint8_t*) text);
 	return 0;
 }
 
@@ -52,7 +52,7 @@ int32_t display_Write(char *text) {
  */
 void display_ScrollText(char *text) {
 	BSP_LCD_GLASS_Clear();
-	BSP_LCD_GLASS_ScrollSentence((uint8_t *) text, SCROLL_REPEATS, SCROLL_SPEED);
+	BSP_LCD_GLASS_ScrollSentence((uint8_t*) text, SCROLL_REPEATS, SCROLL_SPEED);
 }
 
 /**
@@ -96,8 +96,7 @@ void display_ArrowSouth() {
 void display_ShowBars(uint32_t level) {
 	uint32_t bars;
 
-	switch (level)
-	{
+	switch (level) {
 	case 4:
 		bars = BATTERYLEVEL_FULL;
 		break;
