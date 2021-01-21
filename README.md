@@ -3,6 +3,9 @@
 
 - [Description](#description)
 - [Development](#development)
+- [Architecture/Design](#architecturedesign)
+  - [Layers](#layers)
+  - [GameFlow](#gameflow)
 - [Gamemanual](#gamemanual)
   - [1. Game configuration](#1-game-configuration)
   - [2. The Game](#2-the-game)
@@ -25,6 +28,18 @@ The following hardware of the STM32L476G-DISCO Board board is used:
 
 * For development the STM32Cube IDE is used
 * To get a highlevel API the Board BSP from ST is used (see doc/bsp_guide.md)
+
+## Architecture/Design
+
+### Layers
+
+I tried to build up kind of a layered architecture, see below.
+
+![Flow Chart Game](images/project_layers.png)
+
+### GameFlow
+
+![Flow Chart Game](images/flowChart_minigame.png)
 
 ## Gamemanual
 
