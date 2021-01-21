@@ -17,23 +17,24 @@
 #include "debug.h"
 #include "heading_calc.h"
 
-#define PLAYER_CNT_2			("PL 2")
-#define PLAYER_CNT_4			("PL 4")
-#define PLAY_TXT				("PLAY")
-#define CALIBRATE_TXT			("CAL")
-#define DIFF_LEVEL_CNT			(4)
-#define DIFF_LEVE_STRLEN		(6)
-#define DIFF_EASY_TXT			("DIF E")
-#define DIFF_MEDIUM_TXT			("DIF M")
-#define DIFF_ADVANCED_TXT		("DIF A")
-#define DIFF_HARDCORE_TXT		("DIF H")
-#define DIFF_EASY_FLASH_CNT		(3)
-#define DIFF_MEDIUM_FLASH_CNT	(5)
-#define DIFF_ADVANCED_FLASH_CNT	(7)
-#define ROTATION_TOLERANCE_DEG	(15)
-#define DIFF_HARDCORE_FLASH_CNT	(15)
-#define FLASH_TIME_MS			(500)
-#define WAIT_DELAY_MS			(250)
+#define PLAYER_CNT_2			    ("PL 2")
+#define PLAYER_CNT_4			    ("PL 4")
+#define PLAY_TXT				    ("PLAY")
+#define CALIBRATE_TXT			    ("CAL")
+#define DIFF_LEVEL_CNT			    (4)
+#define DIFF_LEVE_STRLEN		    (6)
+#define DIFF_EASY_TXT			    ("DIF E")
+#define DIFF_MEDIUM_TXT			    ("DIF M")
+#define DIFF_ADVANCED_TXT		    ("DIF A")
+#define DIFF_HARDCORE_TXT		    ("DIF H")
+#define DIFF_EASY_FLASH_CNT			(3)
+#define DIFF_MEDIUM_FLASH_CNT		(5)
+#define DIFF_ADVANCED_FLASH_CNT		(7)
+#define ROTATION_TOLERANCE_DEG		(15)
+#define DIFF_HARDCORE_FLASH_CNT		(15)
+#define FLASH_TIME_MS				(500)
+#define WAIT_DELAY_MS				(250)
+#define FLASH_ENTER_TIMEOUT_TICKS	(4000)
 
 #define DIFF_DECR_CURRENT	(_gameConfig.difficulty == DIFF_EASY ? DIFF_HARDCORE : (_gameConfig.difficulty - 1) % DIFF_LEVEL_CNT)
 
@@ -81,7 +82,7 @@ DIFF_HARDCORE_TXT };
 static gameState_t _gameState = STATE_INITIAL_SELECTION;
 
 static void _minigame_MainMenu() {
-	joystick_press_t input = NOTHING;
+	joystick_press_t input = JOYSTICK_NOTHING;
 	menuSelection_t _menuSelection = MENU_PLAY;
 
 	display_ScrollText("         MINIGAME");
@@ -89,10 +90,10 @@ static void _minigame_MainMenu() {
 
 	display_Write(PLAY_TXT);
 
-	while (input != CENTER) {
-		input = joystick_WaitForPress();
+	while (input != JOYSTICK_CENTER) {
+		joystick_WaitForPress(&input, JOYSTICK_WAIT_FOREVER);
 
-		if (input == UP || input == DOWN) {
+		if (input == JOYSTICK_UP || input == JOYSTICK_DOWN) {
 			if (_menuSelection == MENU_PLAY) {
 				_menuSelection = MENU_CALIBRATE;
 				display_Write(CALIBRATE_TXT);
@@ -111,16 +112,16 @@ static void _minigame_MainMenu() {
 }
 
 static void _minigame_ConfigPlayers(gameData_t *gameConfig) {
-	joystick_press_t input = NOTHING;
+	joystick_press_t input = JOYSTICK_NOTHING;
 	uint32_t playerCount = 2;
 
 	display_Write(PLAYER_CNT_2);
 	gameConfig->players = playerCount;
 
-	while (input != CENTER) {
-		input = joystick_WaitForPress();
+	while (input != JOYSTICK_CENTER) {
+		joystick_WaitForPress(&input, JOYSTICK_WAIT_FOREVER);
 
-		if (input == UP || input == DOWN) {
+		if (input == JOYSTICK_UP || input == JOYSTICK_DOWN) {
 			if (gameConfig->players == 2) {
 				display_Write(PLAYER_CNT_4);
 				gameConfig->players = 4;
@@ -142,17 +143,17 @@ static void _minigame_DecrDifficulty(gameData_t *gameConfig) {
 }
 
 static void _minigame_ConfigDifficulty(gameData_t *gameConfig) {
-	joystick_press_t input = NOTHING;
+	joystick_press_t input = JOYSTICK_NOTHING;
 
 	display_Write(DIFF_MEDIUM_TXT);
 	gameConfig->difficulty = DIFF_MEDIUM;
 
-	while (input != CENTER) {
-		input = joystick_WaitForPress();
+	while (input != JOYSTICK_CENTER) {
+		joystick_WaitForPress(&input, JOYSTICK_WAIT_FOREVER);
 
-		if (input == UP) {
+		if (input == JOYSTICK_UP) {
 			_minigame_IncrDifficulty(gameConfig);
-		} else if (input == DOWN) {
+		} else if (input == JOYSTICK_DOWN) {
 			_minigame_DecrDifficulty(gameConfig);
 		}
 		display_Write(difficulty_map[gameConfig->difficulty]);
@@ -274,12 +275,11 @@ static uint32_t _minigame_RotateArrow(uint32_t players) {
 }
 
 static void _minigame_WaitForCenter() {
-	joystick_press_t input = NOTHING;
-
+	joystick_press_t input = JOYSTICK_NOTHING;
 	display_Write("GO");
-	input = joystick_WaitForPress();
 
-	while (input != CENTER) {
+	while (input != JOYSTICK_CENTER) {
+		joystick_WaitForPress(&input, JOYSTICK_WAIT_FOREVER);
 	};
 	HAL_Delay(WAIT_DELAY_MS);
 }
@@ -328,10 +328,29 @@ static bool _minigame_RunCheckRotationTo(uint32_t toPlayer, uint32_t players){
 	return true;
 }
 
-static bool _minigame_CheckSequence(){
+static bool _minigame_CheckSequence(gameFlashSequence_t *flashSequence){
 	display_Write("FLASH");
-	HAL_Delay(5000);
-	return false;
+	uint32_t flashsCheck = flashSequence->flashCount;
+	joystick_press_t input;
+	uint32_t idx = 0;
+
+	while (flashsCheck) {
+		joystick_WaitForPress(&input, FLASH_ENTER_TIMEOUT_TICKS);
+
+		if (flashSequence->sequence[idx++] == GREEN) {
+			if (input != JOYSTICK_RIGHT){
+				DEBUG_PRINTF("I: Failure expected JOYSTICK_RIGHT for flash %d", idx);
+				return false;
+			}
+		} else {
+			if (input != JOYSTICK_LEFT){
+				DEBUG_PRINTF("I: Failure expected JOYSTICK_LEFT for flash %d", idx);
+				return false;
+			}
+		}
+		flashsCheck--;
+	}
+	return true;
 }
 
 /**
@@ -402,7 +421,7 @@ void minigame_Run(void) {
 			break;
 		case STATE_ENTER_FLASH_SEQUENCE:
 			DEBUG_PRINTF("I: In Enter Sequence State");
-			success = _minigame_CheckSequence();
+			success = _minigame_CheckSequence(&flashSequence);
 			_gameState = success ? STATE_VICTORY : STATE_FAILED;
 			break;
 		case STATE_FAILED:

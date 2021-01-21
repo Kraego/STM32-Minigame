@@ -18,7 +18,7 @@
  */
 #define DEBOUNCE_TIME_MS	(50)
 
-static volatile joystick_press_t currentPressed = NOTHING;
+static volatile joystick_press_t currentPressed = JOYSTICK_NOTHING;
 static joystick_callbacks_t _callbacks = {};
 static uint32_t EXTI0_lastCalled;
 static uint32_t EXTI1_lastCalled;
@@ -45,27 +45,27 @@ static void handleInterrupt(uint32_t *lastCalled, void (*cb)()){
 
 void EXTI0_IRQHandler(void) {
 	handleInterrupt(&EXTI0_lastCalled, _callbacks.callbackCenter);
-	currentPressed = CENTER;
+	currentPressed = JOYSTICK_CENTER;
 }
 
 void EXTI1_IRQHandler(void) {
 	handleInterrupt(&EXTI1_lastCalled, _callbacks.callbackLeft);
-	currentPressed = LEFT;
+	currentPressed = JOYSTICK_LEFT;
 }
 
 void EXTI2_IRQHandler(void) {
 	handleInterrupt(&EXTI2_lastCalled, _callbacks.callbackRight);
-	currentPressed = RIGHT;
+	currentPressed = JOYSTICK_RIGHT;
 }
 
 void EXTI3_IRQHandler(void) {
 	handleInterrupt(&EXTI3_lastCalled, _callbacks.callbackUp);
-	currentPressed = UP;
+	currentPressed = JOYSTICK_UP;
 }
 
 void EXTI9_5_IRQHandler(void) {
 	handleInterrupt(&EXTI9_5_lastCalled, _callbacks.callbackDown);
-	currentPressed = DOWN;
+	currentPressed = JOYSTICK_DOWN;
 }
 
 void joystick_Init(){
@@ -75,18 +75,27 @@ void joystick_Init(){
 /**
  * Wait for joystick press. !Attention Function is blocking!
  *
- * @return the pressed joystick direction.
+ *
+ * @param timeOutTicks max wait ticks (-1 wait forever)
+ * @param pressed the pressed joystick direction.
+ *
+ * @return in case of success, JOYSTICK_WAIT_FOREVER in case of timeout
  */
-joystick_press_t joystick_WaitForPress() {
+uint32_t joystick_WaitForPress(joystick_press_t *pressed, uint32_t timeOutTicks) {
 	joystick_press_t previousPressed = currentPressed;
-	joystick_press_t pressed;
+	uint32_t startTicks = HAL_GetTick();
 
 	while (previousPressed == currentPressed){
+		if (timeOutTicks != JOYSTICK_WAIT_FOREVER && (HAL_GetTick() - startTicks >= timeOutTicks))
+		{
+			*pressed = JOYSTICK_NOTHING;
+			return -1;
+		}
 		HAL_Delay(1);
 	}
-	pressed = currentPressed;
-	currentPressed = NOTHING;
-	return pressed;
+	*pressed = currentPressed;
+	currentPressed = JOYSTICK_NOTHING;
+	return 0;
 }
 
 void joystick_RegisterUpCb(void (*cb)()) {
