@@ -8,17 +8,18 @@
 #include "display.h"
 #include "stm32l4xx_hal.h"
 
-#define ONE_ROTATION_CNT	(4)
+#define ONE_ROTATION_CNT	(5)
 
 static void (*rotation[ONE_ROTATION_CNT])() = {
 	display_ArrowSouth,
 	display_ArrowWest,
 	display_ArrowNorth,
-	display_ArrowEast
+	display_ArrowEast,
+	display_ArrowSouth
 	};
 
 /**
- * Rotate the display arrow - starting south til east - clockwise
+ * Rotate the display arrow - starting south til south - clockwise
  *
  * @param delay_ms delay between rotation step
  */

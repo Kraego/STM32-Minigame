@@ -30,7 +30,7 @@
 #define DIFF_EASY_FLASH_CNT		(3)
 #define DIFF_MEDIUM_FLASH_CNT	(5)
 #define DIFF_ADVANCED_FLASH_CNT	(7)
-#define ROTATION_TOLERANCE_DEG	(5)
+#define ROTATION_TOLERANCE_DEG	(15)
 #define DIFF_HARDCORE_FLASH_CNT	(15)
 #define FLASH_TIME_MS			(500)
 #define WAIT_DELAY_MS			(250)
@@ -84,7 +84,7 @@ static void _minigame_MainMenu() {
 	joystick_press_t input = NOTHING;
 	menuSelection_t _menuSelection = MENU_PLAY;
 
-	// display_ScrollText("         MINIGAME"); // TODO
+	display_ScrollText("         MINIGAME");
 	HAL_Delay(WAIT_DELAY_MS);
 
 	display_Write(PLAY_TXT);
@@ -269,7 +269,7 @@ static uint32_t _minigame_RotateArrow(uint32_t players) {
 	}
 
 	arrowRotator_Rotate(delay_ms + 50, randomness);
-	HAL_Delay(500);
+	HAL_Delay(750);
 	return randomness;
 }
 
@@ -297,16 +297,18 @@ static bool _minigame_CheckHeading(uint32_t target, uint32_t tolerance){
 static bool _minigame_RunCheckRotationTo(uint32_t toPlayer, uint32_t players){
 	uint32_t startHeading = heading_GetHeading();
 	uint32_t degreesBetweenPlayers = players == 4 ? 90 : 180;
-	uint32_t destinationHeading = (startHeading + toPlayer * degreesBetweenPlayers) % 360;
-	uint32_t startTime_ms;
+	int32_t destinationHeading = startHeading - toPlayer * degreesBetweenPlayers;
+	uint32_t startTicks;
+
+	destinationHeading = destinationHeading < 0 ? destinationHeading + 360 : destinationHeading;
 
 	DEBUG_PRINTF("I: Start heading is %d target is %d (to player: %d)! ", startHeading, destinationHeading, toPlayer);
 	display_Write("ROTATE");
 	display_ShowBars(4);
 
-	startTime_ms = HAL_GetTick();
+	startTicks = HAL_GetTick();
 	while (!_minigame_CheckHeading(destinationHeading, ROTATION_TOLERANCE_DEG)){
-		uint32_t diff = HAL_GetTick() - startTime_ms;
+		uint32_t diff = HAL_GetTick() - startTicks;
 
 		if (diff > 6000){
 			DEBUG_PRINTF("I: Heading at end was %d", heading_GetHeading());
@@ -359,8 +361,6 @@ void minigame_Run(void) {
 	gameFlashSequence_t flashSequence = { };
 	gameData_t gameData = { };
 	bool success;
-
-	//_gameState = STATE_CALCULATE_FLASHES; // TODO: remove
 
 	while (true) {
 		switch (_gameState) {
@@ -416,8 +416,12 @@ void minigame_Run(void) {
 			_gameState = STATE_DONE;
 			break;
 		case STATE_DONE:
-			free(flashSequence.sequence);
+			DEBUG_PRINTF("I: In Done State ... Cleanup");
+			free(flashes);
+			flashes = NULL;
+			gameData.current_Player = 0;
 			_gameState = STATE_CALCULATE_FLASHES;
+			break;
 		default:
 			DEBUG_PRINTF("E: Wrong state for state machine!!!");
 			break;
