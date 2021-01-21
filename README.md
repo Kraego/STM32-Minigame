@@ -25,6 +25,8 @@ The following hardware of the STM32L476G-DISCOVERY Board is used:
 * Magnetometer MEMS (lsm303c)
 * (for mobility: battery or Powerbank over USB)
 
+<div style="page-break-after: always;"></div>
+
 ## Development
 
 * For development the STM32Cube IDE is used
@@ -47,6 +49,8 @@ The following hardware of the STM32L476G-DISCOVERY Board is used:
 I tried to build up kind of a layered architecture, see below.
 
 ![Project Layers](images/project_layers.png)
+
+<div style="page-break-after: always;"></div>
 
 ### Game-Flow
 
