@@ -16,8 +16,9 @@ Goal of the Project ist the development of a mini game. The game is described be
 
 The following hardware of the STM32L476G-DISCO Board board is used:
 * Joystick
-  * left, right: configuration, led flashing, input (green: right, red: left)
-  * Joystick-Center - Enter
+  * **up, down**: configuration, 
+  * **right, left**: led flashing replication (green: right, red: left)
+  * **center**: center is enter (it rhymes)
 * LED (green and red) for flash sequence
 * LCD Display: Arrow + State messages
 ![The Arrow](images/Arrow.png)
@@ -38,6 +39,8 @@ I tried to build up kind of a layered architecture, see below.
 ![Flow Chart Game](images/project_layers.png)
 
 ### GameFlow
+
+Below you see the gameflow of the minigame. The states could be found in the statemachine in *Usercode/minigame.c ->minigame_Run()*
 
 ![Flow Chart Game](images/flowChart_minigame.png)
 
