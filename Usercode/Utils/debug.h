@@ -13,7 +13,7 @@
 #include <stdarg.h>
 #include "stm32l4xx_hal.h"
 
-#define DEBUG_PRINT
+// #define DEBUG_PRINT
 
 #ifdef DEBUG_PRINT
 void debug_Init(UART_HandleTypeDef *_huart);

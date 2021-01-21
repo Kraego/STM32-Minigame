@@ -259,18 +259,20 @@ static void _minigame_RunFlashSequence(gameFlashSequence_t *flashSequence) {
 static uint32_t _minigame_RotateArrow(uint32_t players) {
 	uint32_t delay_ms = 0;
 	uint32_t randomness;
+	uint32_t additionalRotating;
 
 	srand(HAL_GetTick());
 	randomness = rand() % players;
-
 	DEBUG_PRINTF("I: Add Randomness %d", randomness);
+	additionalRotating = (players == 2 && randomness == 1) ? 2 : randomness;
+	DEBUG_PRINTF("I: Add additional %d rotations", additionalRotating);
 
 	while (delay_ms <= 250) {
 		arrowRotator_FullRoation(delay_ms);
 		delay_ms += 25;
 	}
 
-	arrowRotator_Rotate(delay_ms + 50, randomness);
+	arrowRotator_Rotate(delay_ms + 50, additionalRotating);
 	HAL_Delay(750);
 	return randomness;
 }
