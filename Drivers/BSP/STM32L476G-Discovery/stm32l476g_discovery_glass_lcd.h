@@ -472,21 +472,21 @@ typedef enum
 /* constant code for '/' */
 #define C_SLATCH              ((uint16_t) 0x00c0)
 
-/* constant code for array west */
-#define C_ARRAY_WEST		  ((uint16_t) 0x0041)
+/* constant code for arrow west */
+#define C_ARROW_WEST		  ((uint16_t) 0x0041)
 
-/* constant code for array east */
-#define C_ARRAY_EAST		  ((uint16_t) 0x0088)
+/* constant code for arrow east */
+#define C_ARROW_EAST		  ((uint16_t) 0x0088)
 
-/* constant code for array north first segment */
-#define C_ARRAY_NORTH_1		  ((uint16_t) 0x0040)
-/* constant code for array north second segment */
-#define C_ARRAY_NORTH_2		  ((uint16_t) 0x0008)
+/* constant code for arrow north first segment */
+#define C_ARROW_NORTH_1		  ((uint16_t) 0x0040)
+/* constant code for arrow north second segment */
+#define C_ARROW_NORTH_2		  ((uint16_t) 0x0008)
 
-/* constant code for array south first segment */
-#define C_ARRAY_SOUTH_1		  ((uint16_t) 0x0001)
-/* constant code for array south second segment */
-#define C_ARRAY_SOUTH_2		  ((uint16_t) 0x0080)
+/* constant code for arrow south first segment */
+#define C_ARROW_SOUTH_1		  ((uint16_t) 0x0001)
+/* constant code for arrow south second segment */
+#define C_ARROW_SOUTH_2		  ((uint16_t) 0x0080)
 
 /* constant code for small o */
 #define C_PERCENT_2           ((uint16_t) 0xb300)

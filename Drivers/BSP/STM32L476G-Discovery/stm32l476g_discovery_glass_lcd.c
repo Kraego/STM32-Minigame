@@ -758,27 +758,27 @@ static void Convert(uint8_t *Char, Point_Typedef Point, DoublePoint_Typedef Colo
   switch (*Char)
   {
     case '<':
-      ch = C_ARRAY_WEST;
+      ch = C_ARROW_WEST;
       break;
 
     case '>':
-      ch = C_ARRAY_EAST;
+      ch = C_ARROW_EAST;
       break;
 
     case '|':
-      ch = C_ARRAY_NORTH_1;
+      ch = C_ARROW_NORTH_1;
       break;
 
     case '_':
-      ch = C_ARRAY_SOUTH_1;
+      ch = C_ARROW_SOUTH_1;
       break;
 
     case '!':
-      ch = C_ARRAY_NORTH_2;
+      ch = C_ARROW_NORTH_2;
       break;
 
     case '#':
-      ch = C_ARRAY_SOUTH_2;
+      ch = C_ARROW_SOUTH_2;
       break;
 
   	case ' ' :

@@ -262,6 +262,7 @@ static uint32_t _minigame_RotateArrow(uint32_t players) {
 
 	srand(HAL_GetTick());
 	randomness = rand() % players;
+
 	DEBUG_PRINTF("I: Add Randomness %d", randomness);
 
 	while (delay_ms <= 250) {
