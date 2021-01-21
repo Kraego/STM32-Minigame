@@ -52,11 +52,10 @@ uint32_t compass_Init() {
 	DEBUG_PRINTF("I: Initializing Compass");
 
 	BSP_QSPI_Init();
-	BSP_QSPI_Read((uint8_t *) &calibration, CALIBRATION_ADDRESS, sizeof(compass_calibration_t));
+	BSP_QSPI_Read((uint8_t*) &calibration, CALIBRATION_ADDRESS, sizeof(compass_calibration_t));
 	BSP_COMPASS_Init();
 
-	if (isCalibrated())
-	{
+	if (isCalibrated()) {
 		DEBUG_PRINTF("I: Loaded stored calibration conifg");
 	} else {
 		return -1;
@@ -134,6 +133,6 @@ void compass_Calibrate() {
 
 	calibration.magic = CALIBRATION_MAGIC;
 	BSP_QSPI_Erase_Chip();
-	BSP_QSPI_Write((uint8_t *) &calibration, CALIBRATION_ADDRESS, sizeof(compass_calibration_t));
+	BSP_QSPI_Write((uint8_t*) &calibration, CALIBRATION_ADDRESS, sizeof(compass_calibration_t));
 	DEBUG_PRINTF("I: Calibration stored");
 }

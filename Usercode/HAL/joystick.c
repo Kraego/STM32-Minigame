@@ -19,15 +19,14 @@
 #define DEBOUNCE_TIME_MS	(50)
 
 static volatile joystick_press_t currentPressed = JOYSTICK_NOTHING;
-static joystick_callbacks_t _callbacks = {};
+static joystick_callbacks_t _callbacks = { };
 static uint32_t EXTI0_lastCalled;
 static uint32_t EXTI1_lastCalled;
 static uint32_t EXTI2_lastCalled;
 static uint32_t EXTI3_lastCalled;
 static uint32_t EXTI9_5_lastCalled;
 
-
-static void handleInterrupt(uint32_t *lastCalled, void (*cb)()){
+static void handleInterrupt(uint32_t *lastCalled, void (*cb)()) {
 	volatile exti_PR1_cmsis_t *pr1 = EXTI_PR1_BASE_ADDRESS;
 
 	if (pr1->val.val0 &= 0x1) {
@@ -36,7 +35,7 @@ static void handleInterrupt(uint32_t *lastCalled, void (*cb)()){
 		pr1->val.val0 |= 0x0;
 		if (now - *lastCalled >= DEBOUNCE_TIME_MS) {
 			*lastCalled = now;
-			if (cb != NULL){
+			if (cb != NULL) {
 				cb();
 			}
 		}
@@ -71,7 +70,7 @@ void EXTI9_5_IRQHandler(void) {
 /**
  * Initialize joystick
  */
-void joystick_Init(){
+void joystick_Init() {
 	BSP_JOY_Init(JOY_MODE_EXTI);
 }
 
@@ -88,9 +87,8 @@ uint32_t joystick_WaitForPress(joystick_press_t *pressed, uint32_t timeOutTicks)
 	joystick_press_t previousPressed = currentPressed;
 	uint32_t startTicks = HAL_GetTick();
 
-	while (previousPressed == currentPressed){
-		if (timeOutTicks != JOYSTICK_WAIT_FOREVER && (HAL_GetTick() - startTicks >= timeOutTicks))
-		{
+	while (previousPressed == currentPressed) {
+		if (timeOutTicks != JOYSTICK_WAIT_FOREVER && (HAL_GetTick() - startTicks >= timeOutTicks)) {
 			*pressed = JOYSTICK_NOTHING;
 			return -1;
 		}
