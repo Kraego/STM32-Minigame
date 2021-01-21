@@ -1,7 +1,7 @@
 ﻿<!-- omit in toc -->
 ## Mini Reaction Game 
 
-- [Description](#description)
+- [Project Idea](#project-idea)
 - [Development](#development)
 - [Architecture/Design](#architecturedesign)
   - [Layers](#layers)
@@ -10,7 +10,7 @@
   - [1. Game configuration](#1-game-configuration)
   - [2. The Game](#2-the-game)
 
-## Description
+## Project Idea
 
 Goal of the Project ist the development of a mini game. The game is described below.
 
