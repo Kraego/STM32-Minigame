@@ -7,6 +7,7 @@
 #include <limits.h>
 #include <stdbool.h>
 #include "compass.h"
+#include "display.h"
 #include "debug.h"
 #include "stm32l476g_discovery_qspi.h"
 #include "stm32l476g_discovery_compass.h"
@@ -106,6 +107,7 @@ void compass_Calibrate() {
 	int16_t yMin = INT16_MAX;
 	int16_t zMin = INT16_MAX;
 
+	display_Write("DO CAL");
 	DEBUG_PRINTF("I: Calibrating compass ...");
 	while (toDo) {
 		compass_GetRawValues(magBuffer);
