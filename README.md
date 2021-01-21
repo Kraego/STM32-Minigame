@@ -46,7 +46,8 @@ I tried to build up kind of a layered architecture, see below.
 ### 1. Game configuration
 
 * Configuration via joystick (selection), center is Enter, using LCD Display for output
-* Calibration of the mems magnet sensor (30 sec. rotating)
+* Optional: Calibration of the mems magnet sensor (30 sec. rotating)
+  * You must fullfile at least one rotation!
 * Select player count 2 or 4 (rotation 90° or 180° ... limitation due display arrow)
 * Select difficulty level (easy, medium, advanced, hardcore)
   * determing difficulty of the flash sequence (f.e.: easy - green, green, red)
@@ -54,15 +55,16 @@ I tried to build up kind of a layered architecture, see below.
 
 ### 2. The Game
 
-1. Player start: rotating that the board so that it's in front of u, display on top
-2. Press Center Button
-3. Display show Flash - **Green + Red LED showing flash sequence**
-4. Then an arrow on the LCD starts rotating
-5. When the arrow stops it points to a player
-6. This player must now rotate the board so it's in front of him (see step 1.)
+1. The display shows Go
+2. Player start: rotating that the board so that it's in front of u, display on top
+3. Press Center Button
+4. LEDs show a flash sequence **Green + Red LED**
+5. Then an arrow on the LCD starts rotating
+6. When the arrow stops it points to the next player (the display shows Rotate and full bars)
+7. This player must now rotate the board so it's in front of him (see step 2.)
    * there is a timeout for doing this -> the bars on the display visualize this.
-7. Verification:
+8. When the board is at the right angle it shows FLASH -> now the player should replicate the sequence with the joystick (see Step 4)
+9. Verification:
      * If the user enter the sequence correct: the display shows Victory.
      * If the user has failed: the display shows Failed
-8. Back to step 1.
-
+10. Back to step 1.
