@@ -5,8 +5,8 @@
 - [Development](#development)
 - [Architecture/Design](#architecturedesign)
   - [Layers](#layers)
-  - [GameFlow](#gameflow)
-- [Gamemanual](#gamemanual)
+  - [Game-Flow](#game-flow)
+- [Game manual](#game-manual)
   - [1. Game configuration](#1-game-configuration)
   - [2. The Game](#2-the-game)
 
@@ -38,13 +38,13 @@ I tried to build up kind of a layered architecture, see below.
 
 ![Flow Chart Game](images/project_layers.png)
 
-### GameFlow
+### Game-Flow
 
 Below you see the gameflow of the minigame. The states could be found in the statemachine in *Usercode/minigame.c ->minigame_Run()*
 
 ![Flow Chart Game](images/flowChart_minigame.png)
 
-## Gamemanual
+## Game manual
 
 ### 1. Game configuration
 
