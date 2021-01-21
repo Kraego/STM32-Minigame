@@ -94,7 +94,7 @@ void display_ArrowSouth() {
  * @param level 0 is empty 4 is full
  */
 void display_ShowBars(uint32_t level) {
-	uint32_t bars;
+	uint32_t bars = BATTERYLEVEL_OFF;
 
 	switch (level) {
 	case 4:

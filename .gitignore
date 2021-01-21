@@ -37,4 +37,5 @@
 /lib
 
 # Build Folders
-Debug/
+/Debug/
+/Release/
