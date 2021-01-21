@@ -30,11 +30,11 @@
 #define DIFF_EASY_FLASH_CNT			(3)
 #define DIFF_MEDIUM_FLASH_CNT		(5)
 #define DIFF_ADVANCED_FLASH_CNT		(7)
-#define ROTATION_TOLERANCE_DEG		(15)
+#define ROTATION_TOLERANCE_DEG		(5)
 #define DIFF_HARDCORE_FLASH_CNT		(15)
 #define FLASH_TIME_MS				(500)
 #define WAIT_DELAY_MS				(250)
-#define FLASH_ENTER_TIMEOUT_TICKS	(3000)
+#define FLASH_ENTER_TIMEOUT_TICKS	(1500)
 
 #define DIFF_DECR_CURRENT	(_gameConfig.difficulty == DIFF_EASY ? DIFF_HARDCORE : (_gameConfig.difficulty - 1) % DIFF_LEVEL_CNT)
 
@@ -289,12 +289,7 @@ static void _minigame_WaitForCenter() {
 
 static bool _minigame_CheckHeading(uint32_t target, uint32_t tolerance) {
 	uint32_t current = heading_GetHeading();
-
-	if (current > target) {
-		return (current - target) < tolerance;
-	} else {
-		return (target - current) < tolerance;
-	}
+	return abs(current - target) < tolerance;
 }
 
 static bool _minigame_RunCheckRotationTo(uint32_t toPlayer, uint32_t players) {
@@ -313,16 +308,16 @@ static bool _minigame_RunCheckRotationTo(uint32_t toPlayer, uint32_t players) {
 	while (!_minigame_CheckHeading(destinationHeading, ROTATION_TOLERANCE_DEG)) {
 		uint32_t diff = HAL_GetTick() - startTicks;
 
-		if (diff > 6000) {
+		if (diff > 4000) {
 			DEBUG_PRINTF("I: Heading at end was %d", heading_GetHeading());
 			return false;
 		}
 
-		if (diff < 1500) {
+		if (diff < 1000) {
 			display_ShowBars(3);
-		} else if (diff < 3000) {
+		} else if (diff < 2000) {
 			display_ShowBars(2);
-		} else if (diff <= 4500) {
+		} else if (diff <= 3000) {
 			display_ShowBars(1);
 		}
 		HAL_Delay(50);
