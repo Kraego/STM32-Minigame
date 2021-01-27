@@ -22,7 +22,8 @@ The following hardware of the STM32L476G-DISCOVERY Board is used:
 * LED (green and red) for flash sequence
 * LCD Display: Arrow + State messages
 ![The Arrow](images/Arrow.png)
-* Magnetometer MEMS (lsm303c)
+* 3-axis magnetometer (lsm303c)
+* Quad-SPI Flash memory (for storing calibration data)
 * (for mobility: battery or Powerbank over USB)
 
 <div style="page-break-after: always;"></div>

@@ -29,7 +29,10 @@ First I tried mBedOS:
 
 Since I don't like to program every tiny bit myself, just STM Cube with CMSIS HAL would not be satisfying. I found out that STM provides an BSP for this board (see: bsp_guide). To make this run i had to fix some warnings in the BSP (since the project is built with *-werror*)
 
-So I use STM Cube IDE with the BSP:
+**So I use STM Cube IDE with the BSP**:
+
+![cube ide version](./images/STM32CubeIDE.PNG)
+
 * Pros:
   * Debugging via IDE
   * Faster build time
