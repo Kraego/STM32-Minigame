@@ -68,7 +68,7 @@ After reading the first few values and printing them out, I recognized that the 
 
 ### 3. Calibration
 
-Below you see the calibration method and the storing in the flash memory over QSPI. It's a simple method with enough accuracy. If you want even more precise value you have to do crazy complicated transformations.
+Below you see the calibration method and the storing in the flash memory over QSPI. It's a simple method (see [here](https://github.com/kriswiner/MPU6050/wiki/Simple-and-Effective-Magnetometer-Calibration)) with enough accuracy. If you want even more precise value you have to do crazy complicated transformations.
 
 ``` C
 void compass_Calibrate() {
