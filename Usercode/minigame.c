@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <time.h>
+#include "delay.h"
 #include "minigame.h"
 #include "arrowRotator.h"
 #include "led.h"
@@ -86,7 +87,7 @@ static void _minigame_MainMenu() {
 	menuSelection_t _menuSelection = MENU_PLAY;
 
 	display_ScrollText("         MINIGAME");
-	HAL_Delay(WAIT_DELAY_MS);
+	delay_sleep(WAIT_DELAY_MS);
 
 	display_Write(PLAY_TXT);
 
@@ -224,13 +225,13 @@ static uint32_t _minigame_CalculateFlashSequence(gameFlash_t **flashSequence, di
 
 static void _minigame_FlashGreen() {
 	led_SwitchGreen(true);
-	HAL_Delay(FLASH_TIME_MS);
+	delay_sleep(FLASH_TIME_MS);
 	led_SwitchGreen(false);
 }
 
 static void _minigame_FlashRed() {
 	led_SwitchRed(true);
-	HAL_Delay(FLASH_TIME_MS);
+	delay_sleep(FLASH_TIME_MS);
 	led_SwitchRed(false);
 }
 
@@ -244,7 +245,7 @@ static void _minigame_RunFlashSequence(gameFlashSequence_t *flashSequence) {
 		} else {
 			_minigame_FlashRed();
 		}
-		HAL_Delay(FLASH_TIME_MS);
+		delay_sleep(FLASH_TIME_MS);
 		flashsTodo--;
 	}
 }
@@ -273,7 +274,7 @@ static uint32_t _minigame_RotateArrow(uint32_t players) {
 	}
 
 	arrowRotator_Rotate(delay_ms + 50, additionalRotating);
-	HAL_Delay(750);
+	delay_sleep(750);
 	return randomness;
 }
 
@@ -284,7 +285,7 @@ static void _minigame_WaitForCenter() {
 	while (input != JOYSTICK_CENTER) {
 		joystick_WaitForPress(&input, JOYSTICK_WAIT_FOREVER);
 	};
-	HAL_Delay(WAIT_DELAY_MS);
+	delay_sleep(WAIT_DELAY_MS);
 }
 
 static bool _minigame_CheckHeading(uint32_t target, uint32_t tolerance) {
@@ -320,7 +321,7 @@ static bool _minigame_RunCheckRotationTo(uint32_t toPlayer, uint32_t players) {
 		} else if (diff <= 3000) {
 			display_ShowBars(1);
 		}
-		HAL_Delay(50);
+		delay_sleep(50);
 	}
 	display_ShowBars(0);
 	return true;
@@ -424,12 +425,12 @@ void minigame_Run(void) {
 			break;
 		case STATE_FAILED:
 			display_ScrollText("      YOU FAILED");
-			HAL_Delay(WAIT_DELAY_MS);
+			delay_sleep(WAIT_DELAY_MS);
 			_gameState = STATE_DONE;
 			break;
 		case STATE_VICTORY:
 			display_ScrollText("      VICTORY");
-			HAL_Delay(WAIT_DELAY_MS);
+			delay_sleep(WAIT_DELAY_MS);
 			_gameState = STATE_DONE;
 			break;
 		case STATE_DONE:

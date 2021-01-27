@@ -5,8 +5,8 @@
  *      Author: tkrax
  */
 #include "arrowRotator.h"
+#include "delay.h"
 #include "display.h"
-#include "stm32l4xx_hal.h"
 
 #define ONE_ROTATION_CNT	(4)
 
@@ -41,7 +41,7 @@ void arrowRotator_Rotate(uint32_t delay_ms, uint32_t times) {
 		idx = (idx + 1) % ONE_ROTATION_CNT;
 		count--;
 		if (count) {
-			HAL_Delay(delay_ms);
+			delay_sleep(delay_ms);
 		}
 	}
 }
