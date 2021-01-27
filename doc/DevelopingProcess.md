@@ -45,9 +45,6 @@ Since I don't like to program every tiny bit myself, just STM Cube with CMSIS HA
 
 I looked up how to calculate the heading (without tilt compensation since the board is rotated flat on the table), and came up with this solution:
 
-<div style="page-break-after: always;"></div>
-
-
 ``` C
 /**  
  * Calculate heading for given x & y axis values (of MEMS magnetic field sensor).
@@ -65,6 +62,8 @@ After reading the first few values and printing them out, I recognized that the 
 * Errors:
   * Hard iron bias: Offset of the magnet sensor (in code: bias\[Axis])
   * Soft iron bias: Each of the three axis has a different sensitivity (in code: range\[Axis])
+
+<div style="page-break-after: always;"></div>
 
 ### 3. Calibration
 

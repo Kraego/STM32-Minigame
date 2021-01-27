@@ -24,6 +24,7 @@ The following hardware of the STM32L476G-DISCOVERY Board is used:
 ![The Arrow](images/Arrow.png)
 * 3-axis magnetometer (lsm303c)
 * Quad-SPI Flash memory (for storing calibration data)
+* (UART2 for debug printline over serial connection)
 * (for mobility: battery or Powerbank over USB)
 
 <div style="page-break-after: always;"></div>
