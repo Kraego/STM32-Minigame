@@ -8,14 +8,13 @@
 #include "display.h"
 #include "stm32l4xx_hal.h"
 
-#define ONE_ROTATION_CNT	(5)
+#define ONE_ROTATION_CNT	(4)
 
 static void (*rotation[ONE_ROTATION_CNT])() = {
 	display_ArrowSouth,
 	display_ArrowWest,
 	display_ArrowNorth,
 	display_ArrowEast,
-	display_ArrowSouth
 	};
 
 /**
