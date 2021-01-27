@@ -61,11 +61,14 @@ double _heading_CalcHeading(double x, double y) {
 	return heading < 0 ? heading + 360 : heading;
 }
 ```
-After reading the first few values and printing them out, I recognized that the data can't be correct. So I found out that the magnet sensor must be calibrated (cause of deviation in the production, every sensor is unique and must therefor be calibrated).
+After reading the first few values and printing them out, I recognized that the data can't be correct. So I found out that the magnet sensor must be calibrated (cause of deviation in the production, every sensor is unique and must therefor be calibrated), to elimenate this Errors.
+* Errors:
+  * Hard iron bias: Offset of the magnet sensor (in code: bias\[Axis])
+  * Soft iron bias: Each of the three axis has a different sensitivity (in code: range\[Axis])
 
 ### 3. Calibration
 
-Below you see the calibration method and the storing in the flash memory over QSPI.
+Below you see the calibration method and the storing in the flash memory over QSPI. It's a simple method with enough accuracy. If you want even more precise value you have to do crazy complicated transformations.
 
 ``` C
 void compass_Calibrate() {
