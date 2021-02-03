@@ -15,7 +15,7 @@ static void (*rotation[ONE_ROTATION_CNT])() = {
 	display_ArrowWest,
 	display_ArrowNorth,
 	display_ArrowEast,
-	};
+};
 
 /**
  * Rotate the display arrow - starting south til south - clockwise

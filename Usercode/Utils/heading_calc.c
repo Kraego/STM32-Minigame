@@ -21,7 +21,7 @@
  * @return the heading angle in degrees (no tilt compensation)
  */
 float _heading_CalcHeading(float x, float y) {
-	float heading = (atan2(y * M_GN, x * M_GN) * 180) / M_PI;
+	float heading = (float) (atan2(y * M_GN, x * M_GN) * 180) / M_PI;
 	return heading < 0 ? heading + 360 : heading;
 }
 
