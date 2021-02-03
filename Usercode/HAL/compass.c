@@ -29,12 +29,12 @@
 
 typedef struct {
 	uint32_t magic; // magic number to check for loading at init
-	double biasX;
-	double rangeX;
-	double biasY;
-	double rangeY;
-	double biasZ;
-	double rangeZ;
+	float biasX;
+	float rangeX;
+	float biasY;
+	float rangeY;
+	float biasZ;
+	float rangeZ;
 } compass_calibration_t;
 
 static compass_calibration_t calibration = { };
@@ -82,16 +82,16 @@ void compass_GetRawValues(int16_t *pDataXYZ) {
  *                  pDataXYZ[0] = X axis, pDataXYZ[1] = Y axis, pDataXYZ[2] = Z axis
  * @retval 0 if success, -1 if not calibrated
  */
-uint32_t compass_GetValues(double *pDataXYZ) {
+uint32_t compass_GetValues(float *pDataXYZ) {
 	int16_t rawValues[3];
 	BSP_COMPASS_MagGetXYZ(rawValues);
 
 	if (!isCalibrated()) {
 		return -1;
 	}
-	pDataXYZ[0] = ((double) rawValues[0] - calibration.biasX) / calibration.rangeX;
-	pDataXYZ[1] = ((double) rawValues[1] - calibration.biasY) / calibration.rangeY;
-	pDataXYZ[2] = ((double) rawValues[2] - calibration.biasZ) / calibration.rangeZ;
+	pDataXYZ[0] = ((float) rawValues[0] - calibration.biasX) / calibration.rangeX;
+	pDataXYZ[1] = ((float) rawValues[1] - calibration.biasY) / calibration.rangeY;
+	pDataXYZ[2] = ((float) rawValues[2] - calibration.biasZ) / calibration.rangeZ;
 
 	return 0;
 }

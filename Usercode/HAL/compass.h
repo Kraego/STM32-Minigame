@@ -12,7 +12,7 @@
 
 uint32_t compass_Init(void);
 void compass_Calibrate(void);
-uint32_t compass_GetValues(double *pDataXYZ);
+uint32_t compass_GetValues(float *pDataXYZ);
 void compass_GetRawValues(int16_t *pDataXYZ);
 
 #endif /* COMPASS_H_ */

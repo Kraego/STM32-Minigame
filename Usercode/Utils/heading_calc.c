@@ -20,8 +20,8 @@
  * @param y value on x axis
  * @return the heading angle in degrees (no tilt compensation)
  */
-double _heading_CalcHeading(double x, double y) {
-	double heading = (atan2(y * M_GN, x * M_GN) * 180) / M_PI;
+float _heading_CalcHeading(float x, float y) {
+	float heading = (atan2(y * M_GN, x * M_GN) * 180) / M_PI;
 	return heading < 0 ? heading + 360 : heading;
 }
 
@@ -31,8 +31,8 @@ double _heading_CalcHeading(double x, double y) {
  * @return the relative heading in degrees
  */
 uint32_t heading_GetHeading() {
-	double dataXYZ[3];
+	float dataXYZ[3];
 	compass_GetValues(dataXYZ);
-	double heading = _heading_CalcHeading(dataXYZ[0], dataXYZ[1]);
+	float heading = _heading_CalcHeading(dataXYZ[0], dataXYZ[1]);
 	return (uint32_t) heading;
 }
