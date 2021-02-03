@@ -11,7 +11,7 @@ To check Heading, I sloppy added this code in the main.
   DEBUG_INIT(&huart2);
   compass_Init();
   int16_t magn_vals[3];
-  double magn[3];
+  float magn[3];
   compass_GetRawValues(magn_vals);
   DEBUG_PRINTF("Raw Values x: %i, y: %i, z: %i", magn_vals[0], magn_vals[1], magn_vals[2]);
 
