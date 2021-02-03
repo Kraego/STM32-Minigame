@@ -24,7 +24,7 @@ First I tried mBedOS:
   * Easy to use
 * Cons:
   * Long Build Time + CPU Usage for Indexing (regarding to huge junk of file)
-  * Now Debugging since requiring pyOCD (we need gdb)
+  * No Debugging since requiring pyOCD (we need gdb)
   * imho: too highlevel/abstract
 
 Since I don't like to program every tiny bit myself, just STM Cube with CMSIS HAL would not be satisfying. I found out that STM provides an BSP for this board (see: bsp_guide). To make this run i had to fix some warnings in the BSP (since the project is built with *-werror*)
